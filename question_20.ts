@@ -1,0 +1,1 @@
+let mixed = ["Mount Everst","Mahodan Lake","Saudi Arabia","Sakardu","Urdu"];
