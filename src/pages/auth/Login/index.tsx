@@ -1,0 +1,107 @@
+import { Toast, Button } from 'react-bootstrap'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+import AuthLayout from '../AuthLayout'
+import useLogin from './useLogin'
+import Swal from 'sweetalert2'
+
+// components
+import { VerticalForm, FormInput, PageBreadcrumb } from '@/components'
+import { useEffect, useState } from 'react'
+import { UserData } from '@/types'
+
+const schemaResolver = yupResolver(
+	yup.object().shape({
+		email: yup.string().required('Please enter Username'),
+		password: yup.string().required('Please enter Password'),
+	})
+)
+
+const Login = () => {
+	const { loading, login, redirectUrl, isAuthenticated, error } = useLogin()
+	// const navigate = useNavigate()
+
+	const handleSubmit = async (data: UserData) => {
+		const result = await login(data)
+		// if (result.success)
+		// 	setTimeout(() => {
+		// 		setShowToast(false)
+		// 		navigate(redirectUrl)
+		// 	}, 3000) // Wait for 3 seconds before redirecting
+		// }
+	}
+
+	useEffect(() => {
+		if (error) {
+			// setToastType('error')
+			// setToastMessage(error)
+			// setShowToast(true)
+			Swal.fire({
+				icon: 'error',
+				title: 'Login Failed',
+				text: error,
+				showConfirmButton: false,
+				timer: 1500,
+			})
+		}
+	}, [error])
+
+	return (
+		<>
+			<PageBreadcrumb title="Log In" />
+
+			{isAuthenticated && <Navigate to={redirectUrl} replace />}
+
+			<AuthLayout
+				authTitle="Sign In"
+				helpText="Enter your email address and password to access account."
+				// bottomLinks={<BottomLinks />}
+				hasThirdPartyLogin>
+				<VerticalForm<UserData>
+					onSubmit={handleSubmit}
+					resolver={schemaResolver}
+					defaultValues={{ email: 'hm51562@gmail.com', password: 'hassan' }}>
+					<FormInput
+						label="Email address"
+						type="text"
+						name="email"
+						placeholder="Enter your email"
+						containerClass="mb-3"
+						required
+					/>
+					<FormInput
+						label="Password"
+						name="password"
+						type="password"
+						required
+						id="password"
+						placeholder="Enter your password"
+						containerClass="mb-3">
+						<Link to="/auth/forgot-password" className="text-muted float-end">
+							<small>Forgot your password?</small>
+						</Link>
+					</FormInput>
+					<FormInput
+						label="Remember me"
+						type="checkbox"
+						name="checkbox"
+						containerClass={'mb-3'}
+					/>
+					<div className="mb-0 text-start">
+						<Button
+							variant="soft-success"
+							className="w-100"
+							type="submit"
+							disabled={loading}>
+							<i className="ri-login-circle-fill me-1" />
+							<span className="fw-bold">Log In</span>
+						</Button>
+					</div>
+				</VerticalForm>
+			</AuthLayout>
+		</>
+	)
+}
+
+export default Login
