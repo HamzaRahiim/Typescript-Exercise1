@@ -1,41 +1,26 @@
-import { Route, Navigate, RouteProps } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
+import { useAuthContext } from '../common/context'
 
-// helpers
-import { useAuthContext } from '@/common'
+const PrivateRoute = ({ children, requiredPermission, to_do }: any) => {
+	const { permissions, isAuthenticated, isSuperUser } = useAuthContext()
 
-/**
- * Private Route forces the authorization before the route can be accessed
- * @param {*} param0
- * @returns
- */
+	// Check if the user is authenticated
+	if (!isAuthenticated) {
+		return <Navigate to="/auth/login" />
+	}
 
-const PrivateRoute = ({ component: Component, roles, ...rest }: any) => {
-	const { isAuthenticated } = useAuthContext()
-	return (
-		<Route
-			{...rest}
-			render={(props: RouteProps) => {
-				if (!isAuthenticated) {
-					// not logged in so redirect to login page with the return url
-					return (
-						<Navigate
-							to={{
-								pathname: '/auth/login',
-							}}
-						/>
-					)
-				}
+	// If the user is a superuser, allow access to all routes
+	if (isSuperUser) {
+		return children
+	}
 
-				// check if route is restricted by role
-				if (isAuthenticated) {
-					// role not authorised so redirect to login page
-					return <Navigate to={{ pathname: '/' }} />
-				}
-				// authorised so return component
-				return <Component {...props} />
-			}}
-		/>
-	)
+	// Check if the user has the required permission
+	if (permissions[requiredPermission][to_do] === false) {
+		return <Navigate to="/not-authorize" />
+	}
+
+	// If everything is fine, render the children (protected component)
+	return children
 }
 
 export default PrivateRoute

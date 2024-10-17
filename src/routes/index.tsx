@@ -151,71 +151,60 @@ const customPagesRoutes = {
 			element: <ProfilePages />,
 			route: PrivateRoute,
 		},
-		{
-			path: '/user/roles/',
-			name: 'Roles',
-			element: <Role />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/user/update/:id',
-			name: 'User Update',
-			element: <UserUpdates />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/invoice',
-			name: 'Invoice',
-			element: <InvoicePages />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/faq',
-			name: 'FAQ',
-			element: <FAQPages />,
-			route: PrivateRoute,
-		},
-		{
-			path: '/pages/pricing',
-			name: 'Pricing',
-			element: <PricingPages />,
-			route: PrivateRoute,
-		},
+
 		{
 			path: '/products/add-product',
 			name: 'Add Product',
-			element: <StarterPages />,
-			route: PrivateRoute,
+			element: (
+				<PrivateRoute requiredPermission="Products">
+					<StarterPages />
+				</PrivateRoute>
+			),
 		},
 		{
 			path: '/products/all-product',
 			name: 'All Products',
-			element: <InvoicePages />,
-			route: PrivateRoute,
+			element: (
+				<PrivateRoute requiredPermission="Products">
+					<InvoicePages />
+				</PrivateRoute>
+			),
 		},
 		{
 			path: '/user/user-all',
 			name: 'Contact List',
-			element: <ContactListPages />,
-			route: PrivateRoute,
+			element: (
+				<PrivateRoute requiredPermission="Users" to_do="View">
+					<ContactListPages />
+				</PrivateRoute>
+			),
 		},
 		{
 			path: '/user/user-create',
 			name: 'Create User',
-			element: <UsersPages />,
-			route: PrivateRoute,
+			element: (
+				<PrivateRoute requiredPermission="Users" to_do="Create">
+					<UsersPages />
+				</PrivateRoute>
+			),
 		},
 		{
-			path: '/pages/timeline',
-			name: 'Timeline',
-			element: <TimelinePages />,
-			route: PrivateRoute,
+			path: '/user/roles/',
+			name: 'Roles',
+			element: (
+				<PrivateRoute requiredPermission="Users">
+					<Role />
+				</PrivateRoute>
+			),
 		},
 		{
-			path: 'pages/error-404-alt',
-			name: 'Error - 404-alt',
-			element: <Error404Alt />,
-			route: PrivateRoute,
+			path: '/user/update/:id',
+			name: 'User Update',
+			element: (
+				<PrivateRoute requiredPermission="Users" to_do="Update">
+					<UserUpdates />
+				</PrivateRoute>
+			),
 		},
 	],
 }
@@ -230,326 +219,7 @@ const uiRoutes: RoutesProps = {
 		{
 			path: '/ui/base',
 			name: 'Base UI',
-			children: [
-				{
-					path: '/ui/accordions',
-					name: 'Accordions',
-					element: <Accordions />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/alerts',
-					name: 'Alerts',
-					element: <Alerts />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/avatars',
-					name: 'Avatars',
-					element: <Avatars />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/badges',
-					name: 'Badges',
-					element: <Badges />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/breadcrumb',
-					name: 'Breadcrumb',
-					element: <Breadcrumb />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/buttons',
-					name: 'Buttons',
-					element: <Buttons />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/cards',
-					name: 'Cards',
-					element: <Cards />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/carousel',
-					name: 'Carousel',
-					element: <Carousel />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/collapse',
-					name: 'Collapse',
-					element: <Collapse />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/dropdowns',
-					name: 'Dropdowns',
-					element: <Dropdowns />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/embed-video',
-					name: 'Embed Video',
-					element: <EmbedVideo />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/grid',
-					name: 'Grid',
-					element: <Grid />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/links',
-					name: 'Links',
-					element: <Links />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/list-group',
-					name: 'List Group',
-					element: <ListGroup />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/modals',
-					name: 'Modals',
-					element: <Modals />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/notifications',
-					name: 'Notifications',
-					element: <Notifications />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/offcanvas',
-					name: 'Offcanvas',
-					element: <Offcanvas />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/placeholders',
-					name: 'Placeholders',
-					element: <Placeholders />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/pagination',
-					name: 'Pagination',
-					element: <Pagination />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/popovers',
-					name: 'Popovers',
-					element: <Popovers />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/progress',
-					name: 'Progress',
-					element: <Progress />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/spinners',
-					name: 'Spinners',
-					element: <Spinners />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/tabs',
-					name: 'Tabs',
-					element: <Tabs />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/tooltips',
-					name: 'Tooltips',
-					element: <Tooltips />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/typography',
-					name: 'Typography',
-					element: <Typography />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/utilities',
-					name: 'Utilities',
-					element: <Utilities />,
-					route: PrivateRoute,
-				},
-			],
-		},
-		{
-			path: '/extended-ui',
-			name: 'Extended UI',
-			children: [
-				{
-					path: '/extended-ui/portlets',
-					name: 'Portlets',
-					element: <Portlets />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/extended-ui/range-slider',
-					name: 'Range Slider',
-					element: <RangeSlider />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/extended-ui/scrollbar',
-					name: 'Scrollbar',
-					element: <Scrollbar />,
-					route: PrivateRoute,
-				},
-			],
-		},
-		{
-			path: '/ui/icons',
-			name: 'Icons',
-			children: [
-				{
-					path: '/ui/icons/remix-icons',
-					name: 'Remix Icons',
-					element: <RemixIcons />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/icons/Bootstrap-icons',
-					name: 'Bootstrap Icons',
-					element: <BootstrapIcons />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/icons/Material-icons',
-					name: 'Material Icons',
-					element: <MaterialIcons />,
-					route: PrivateRoute,
-				},
-			],
-		},
-		{
-			path: '/charts',
-			name: 'Charts',
-			children: [
-				{
-					path: 'charts/apex-charts',
-					name: 'Apex Charts',
-					element: <ApexCharts />,
-					route: PrivateRoute,
-				},
-				{
-					path: 'charts/chartjs',
-					name: 'ChartJS',
-					element: <ChartJs />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/charts/sparkline-charts',
-					name: 'Sparkline Charts',
-					element: <SparklineCharts />,
-					route: PrivateRoute,
-				},
-			],
-		},
-		{
-			path: '/ui/forms',
-			name: 'Forms',
-			children: [
-				{
-					path: '/ui/forms/basic-elements',
-					name: 'Basic Elements',
-					element: <BasicElements />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/forms/form-advanced',
-					name: 'Form Advanced',
-					element: <FormAdvanced />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/forms/validation',
-					name: 'Validation',
-					element: <Validation />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/forms/wizard',
-					name: 'Wizard',
-					element: <Wizard />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/forms/file-uploads',
-					name: 'File Uploads',
-					element: <FileUploads />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/forms/editors',
-					name: 'Editors',
-					element: <Editors />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/forms/image-crop',
-					name: 'Image Crop',
-					element: <ImageCrop />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/forms/editable',
-					name: 'Editable',
-					element: <Editable />,
-					route: PrivateRoute,
-				},
-			],
-		},
-		{
-			path: '/ui/tables',
-			name: 'Tables',
-			children: [
-				{
-					path: '/ui/tables/basic-tables',
-					name: 'Basic Tables',
-					element: <BasicTables />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/tables/data-tables',
-					name: 'Data Tables',
-					element: <DataTables />,
-					route: PrivateRoute,
-				},
-			],
-		},
-		{
-			path: '/ui/maps',
-			name: 'Maps',
-			children: [
-				{
-					path: '/ui/maps/google-maps',
-					name: 'Google Maps',
-					element: <GoogleMaps />,
-					route: PrivateRoute,
-				},
-				{
-					path: '/ui/maps/vector-maps',
-					name: 'Vector Maps',
-					element: <VectorMaps />,
-					route: PrivateRoute,
-				},
-			],
+			children: [],
 		},
 	],
 }

@@ -3,15 +3,16 @@ import { Link } from 'react-router-dom'
 //images
 import logo from '@/assets/images/logo-dark.png'
 import logoSm from '@/assets/images/logo-sm.png'
-import { getMenuItems } from '@/common'
+import { getMenuItems, useAuthContext } from '@/common'
 import AppMenu from './Menu'
 import SimpleBar from 'simplebar-react'
 
 /* Sidebar content */
 const SideBarContent = () => {
+	const { permissions, isSuperUser } = useAuthContext()
 	return (
 		<>
-			<AppMenu menuItems={getMenuItems()} />
+			<AppMenu menuItems={getMenuItems(permissions, isSuperUser)} />
 			<div className="clearfix" />
 		</>
 	)

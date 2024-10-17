@@ -44,6 +44,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			value={{
 				user,
 				isAuthenticated: Boolean(user),
+				isSuperUser: Boolean(user?.is_superuser),
+				role: user?.role,
+				permissions: user?.permissions,
 				saveSession,
 				removeSession,
 			}}>

@@ -18,7 +18,10 @@ const sizePerPageList: PageSize[] = [
 ]
 
 const ContactList = () => {
-	const { user } = useAuthContext()
+	const { user, permissions } = useAuthContext()
+
+	const canUpdate = permissions.Users?.Update
+	const canDelete = permissions.Users?.Delete
 
 	// State hooks
 	const [data, setData] = useState<Employee[]>([])
@@ -59,7 +62,7 @@ const ContactList = () => {
 
 			setData(mappedData)
 		} catch (error: any) {
-			setError(error.message)
+			console.log('error in fetching user ', error.message)
 		} finally {
 			setLoading(false)
 		}
@@ -120,15 +123,16 @@ const ContactList = () => {
 			accessor: 'action',
 			Cell: ({ row }: { row: any }) => (
 				<div className="d-flex">
-					<Link to={`/users/update/${row.original.id}`}>
-						<Button variant="secondary">
+					<Button variant="secondary" disabled={!canUpdate}>
+						<Link to={`/user/update/${row.original.id}`}>
 							<MdEdit />
-						</Button>
-					</Link>
+						</Link>
+					</Button>
 					<Button
 						variant="danger"
 						className="ms-2"
-						onClick={() => handleDeleteConfirmation(row.original.id)}>
+						onClick={() => handleDeleteConfirmation(row.original.id)}
+						disabled={!canDelete}>
 						<MdDelete />
 					</Button>
 				</div>

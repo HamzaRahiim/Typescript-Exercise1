@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 // All layouts containers
@@ -15,6 +15,7 @@ import {
 	useAuthContext,
 	useThemeContext,
 } from '../common/context'
+
 interface IRoutesProps {}
 
 const AllRoutes = (props: IRoutesProps) => {
@@ -24,12 +25,14 @@ const AllRoutes = (props: IRoutesProps) => {
 		settings.layout.type === ThemeSettings.layout.type.vertical
 			? VerticalLayout
 			: HorizontalLayout
-	// const api = new APICore()
+
 	const { isAuthenticated } = useAuthContext()
+
 	return (
 		<React.Fragment>
-			<Routes>
-				<Route>
+			<Suspense fallback={<div>Loading...</div>}>
+				<Routes>
+					{/* Public Routes */}
 					{publicProtectedFlattenRoutes.map((route, idx) => (
 						<Route
 							path={route.path}
@@ -39,9 +42,8 @@ const AllRoutes = (props: IRoutesProps) => {
 							key={idx}
 						/>
 					))}
-				</Route>
 
-				<Route>
+					{/* Auth Protected Routes */}
 					{authProtectedFlattenRoutes.map((route, idx) => (
 						<Route
 							path={route.path}
@@ -60,8 +62,8 @@ const AllRoutes = (props: IRoutesProps) => {
 							key={idx}
 						/>
 					))}
-				</Route>
-			</Routes>
+				</Routes>
+			</Suspense>
 		</React.Fragment>
 	)
 }

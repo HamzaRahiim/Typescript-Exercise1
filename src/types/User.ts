@@ -1,6 +1,7 @@
 export type User = {
 	is_superuser: boolean
 	permissions: any
+	role: string
 }
 
 export type PermissionTypes = 'Create' | 'View' | 'Update' | 'Delete'
@@ -13,11 +14,15 @@ export type PagePermissions = {
 }
 
 export type Permissions = {
-	Users: PagePermissions
-	Category: PagePermissions
 	Products: PagePermissions
+	Category: PagePermissions
+	Shippings: PagePermissions
+	Orders: PagePermissions
+	Users: PagePermissions
 	Inventory: PagePermissions
-	WareHouse: PagePermissions
+	Policies: PagePermissions
+	Settings: PagePermissions
+	Customers: PagePermissions
 }
 
 export interface UserData {

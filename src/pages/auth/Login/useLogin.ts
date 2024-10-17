@@ -46,6 +46,7 @@ export default function useLogin() {
 					permissions: data.user.role.permissions,
 					token: data.token,
 					username: data.user.username,
+					role: data.user.role.role_name,
 				}
 				console.log(
 					' data saving in local before in uselogin page',

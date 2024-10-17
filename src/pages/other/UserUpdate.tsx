@@ -1,159 +1,159 @@
-import { Card, Col, Form, Row, Button, Table, Toast } from 'react-bootstrap'
+import { Card, Col, Form, Row, Button, Spinner } from 'react-bootstrap'
 import { PageBreadcrumb, FormInput } from '@/components'
 import { useForm } from 'react-hook-form'
 import { useEffect, useState } from 'react'
-import { PermissionTypes, Permissions } from '@/types'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { useAuthContext } from '@/common'
 import { useParams } from 'react-router-dom'
-const schemaResolver = yupResolver(
-	yup.object().shape({
-		username: yup.string().required('Please enter Username'),
-		email: yup
-			.string()
-			.email('Please enter a valid email')
-			.required('Please enter Email'),
-		password: yup.string().required('Please enter Password'),
-		phone_number: yup.string().required('Please enter Phone Number'),
-		role_name: yup.string().required('Please enter Role Name'),
-	})
-)
+import Swal from 'sweetalert2'
+
+// Schema for form validation
+const schema = yup.object().shape({
+	username: yup.string().required('Please enter Username'),
+	email: yup
+		.string()
+		.email('Please enter a valid email')
+		.required('Please enter Email'),
+	phone_number: yup.string().required('Please enter Phone Number'),
+	role_name: yup.string().required('Please select a Role'),
+	password: yup.string().required('Please enter Password'),
+})
 
 const UserUpdate = () => {
-	const methods = useForm({ resolver: schemaResolver })
 	const { id } = useParams()
 	const { user } = useAuthContext()
-	console.log(' getting id ', id)
+	const { token } = user
+	const BASE_API = import.meta.env.VITE_BASE_API
+
+	const [roles, setRoles] = useState<any[]>([])
+	const [loading, setLoading] = useState(false)
+	const methods = useForm({
+		resolver: yupResolver(schema),
+		defaultValues: {
+			username: '',
+			email: '',
+			phone_number: '',
+			role_name: '', // initial value for role
+			password: '',
+		},
+	})
 
 	const {
 		handleSubmit,
 		register,
-		control,
-		reset,
 		setValue,
 		formState: { errors },
 	} = methods
-	useEffect(() => {
-		const BASE_API = import.meta.env.VITE_BASE_API
 
-		const yourAuthToken = user.token
-		const fetchUserData = async () => {
+	// Fetch user data and roles
+	useEffect(() => {
+		const fetchData = async () => {
+			setLoading(true)
 			try {
-				const response = await fetch(`${BASE_API}/api/users/${id}`, {
+				// Fetch roles
+				const rolesResponse = await fetch(`${BASE_API}/api/users/role/`, {
 					method: 'GET',
 					headers: {
-						Authorization: `Bearer ${yourAuthToken}`,
+						Authorization: `Bearer ${token}`,
+						'Content-Type': 'application/json',
 					},
 				})
-				const userData = await response.json()
-				console.log(' data from api response ', userData)
+				const rolesData = await rolesResponse.json()
+				setRoles(rolesData)
 
-				if (!response.ok) {
-					const errorMessage = await response.json()
-					throw new Error(errorMessage.message || 'User get failed')
-				}
-				// setValue('username', userData.username)
-				// setValue('email', userData.email)
-				// setValue('phone_number', userData.phone_number)
-				// setValue('role_name', userData.role.role_name)
-				// setPermissions(userData.role.permissions)
+				// Fetch user data by ID
+				const userResponse = await fetch(`${BASE_API}/api/users/${id}`, {
+					method: 'GET',
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				})
+				const userData = await userResponse.json()
+				setValue('username', userData.username)
+				setValue('email', userData.email)
+				setValue('phone_number', userData.phone_number)
+				setValue('role_name', userData.role._id) // Set role by ID
 			} catch (error) {
-				console.error('Error fetching user data: ', error)
+				console.error('Error fetching data:', error)
+			} finally {
+				setLoading(false)
 			}
 		}
-		fetchUserData()
-	}, [id, setValue])
 
-	const [loading, setLoading] = useState(false)
-	const [showToast, setShowToast] = useState(false)
-	const [toastMessage, setToastMessage] = useState('')
-	const [toastVariant, setToastVariant] = useState('success')
-	const [permissions, setPermissions] = useState<Permissions>({
-		Users: { Create: false, View: false, Update: false, Delete: false },
-		Category: { Create: false, View: false, Update: false, Delete: false },
-		Products: { Create: false, View: false, Update: false, Delete: false },
-		Inventory: { Create: false, View: false, Update: false, Delete: false },
-		WareHouse: { Create: false, View: false, Update: false, Delete: false },
-	})
+		fetchData()
+	}, [id, token, setValue])
 
-	const handlePermissionChange = (
-		page: keyof Permissions,
-		permissionType: PermissionTypes
-	) => {
-		setPermissions((prevPermissions) => ({
-			...prevPermissions,
-			[page]: {
-				...prevPermissions[page],
-				[permissionType]: !prevPermissions[page][permissionType],
-			},
-		}))
+	// Handle form submission
+	const handleFormSubmit = async (data: any) => {
+		try {
+			console.log('data direct  from form ', data)
+
+			const formattedData = {
+				username: data.username,
+				email: data.email,
+				password: data.password,
+				phone_number: data.phone_number,
+				userRoleId: data.role_name, // Send _id instead of role_name
+			}
+
+			console.log('data before sending to api ', formattedData)
+
+			const response = await fetch(`${BASE_API}/api/users/${id}`, {
+				method: 'PUT',
+				headers: {
+					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(formattedData),
+			})
+
+			if (!response.ok) throw new Error('Failed to update user.')
+
+			console.log('User updated successfully:', await response.json())
+			Swal.fire({
+				title: 'Success!',
+				text: 'User updated successfully',
+				icon: 'success',
+				confirmButtonText: 'OK',
+				timer: 1500,
+			})
+		} catch (error) {
+			console.error('Error updating user:', error)
+			Swal.fire({
+				title: 'Error!',
+				text: 'Failed to update user',
+				icon: 'error',
+				timer: 1500,
+			})
+		} finally {
+			setLoading(false)
+		}
 	}
 
-	// const handleFormSubmit = async (data: any) => {
-	// 	if (!checkPermissions('Users', 'Create')) {
-	// 		setToastMessage('You do not have permission to create users')
-	// 		setToastVariant('danger')
-	// 		setShowToast(true)
-	// 		return
-	// 	}
-	// 	setLoading(true)
-	// 	try {
-	// 		const formattedData = {
-	// 			username: data.username,
-	// 			email: data.email,
-	// 			password: data.password,
-	// 			phone_number: data.phone_number,
-	// 			role_name: data.role_name,
-	// 			permissions,
-	// 		}
-	// 		const BASE_API = import.meta.env.VITE_BASE_API
-
-	// 		const yourAuthToken = user.token
-
-	// 		const response = await fetch(`${BASE_API}/api/users`, {
-	// 			method: 'POST',
-	// 			headers: {
-	// 				'Content-Type': 'application/json',
-	// 				Authorization: `Bearer ${yourAuthToken}`,
-	// 			},
-	// 			body: JSON.stringify(formattedData),
-	// 		})
-	// 		if (!response.ok) {
-	// 			const errorMessage = await response.json()
-	// 			console.error('API error:', errorMessage)
-	// 			throw new Error(errorMessage.message || 'User creation failed')
-	// 		}
-
-	// 		await response.json()
-	// 		setLoading(false)
-	// 		setToastMessage('User created successfully!')
-	// 		setToastVariant('success')
-	// 		setShowToast(true)
-	// 		reset()
-	// 	} catch (error: any) {
-	// 		console.error('Error submitting User form:', error)
-	// 		setToastMessage(error.message || 'User creation failed')
-	// 		setShowToast(true)
-	// 		setToastVariant('danger')
-	// 		setLoading(false)
-	// 	}
-	// }
-	const handleFormSubmit = (data: any) => {
-		console.log('Form data:', data)
+	if (loading) {
+		return (
+			<div
+				className="d-flex justify-content-center align-items-center"
+				style={{ height: '100vh' }}>
+				<Spinner animation="grow" style={{ margin: '0 5px' }} />
+				<Spinner animation="grow" style={{ margin: '0 5px' }} />
+				<Spinner animation="grow" style={{ margin: '0 5px' }} />
+			</div>
+		)
 	}
 
 	return (
 		<>
-			<Form onSubmit={handleSubmit(handleFormSubmit)}>
-				<PageBreadcrumb title="Update User Info" subName="User" />
-				<Card>
-					<Card.Header>
-						<h4 className="header-title">Account</h4>
-						<p className="text-muted mb-0">
-							Fill in the information below to Update user Information.
-						</p>
-					</Card.Header>
+			<PageBreadcrumb title="Update User Info" subName="User" />
+			<Card>
+				<Card.Header>
+					<h4 className="header-title">Account</h4>
+					<p className="text-muted mb-0">
+						Fill in the information below to update user information.
+					</p>
+				</Card.Header>
+				<Form onSubmit={handleSubmit(handleFormSubmit)}>
 					<Card.Body>
 						<Row>
 							<Col lg={6}>
@@ -164,9 +164,7 @@ const UserUpdate = () => {
 									placeholder="Enter Your Name"
 									containerClass="mb-3"
 									register={register}
-									key="username"
 									errors={errors}
-									control={control}
 								/>
 							</Col>
 							<Col lg={6}>
@@ -174,12 +172,10 @@ const UserUpdate = () => {
 									label="Email"
 									type="email"
 									name="email"
-									placeholder="Email"
-									containerClass="mb-3"
+									placeholder="Enter Your Email"
 									register={register}
-									key="email"
+									containerClass="mb-3"
 									errors={errors}
-									control={control}
 								/>
 							</Col>
 						</Row>
@@ -187,170 +183,50 @@ const UserUpdate = () => {
 							<Col lg={6}>
 								<FormInput
 									label="Phone Number"
-									type="text"
+									type="number"
 									name="phone_number"
 									placeholder="Enter Your Phone Number"
-									containerClass="mb-3"
 									register={register}
-									key="phone_number"
+									containerClass="mb-3"
 									errors={errors}
-									control={control}
 								/>
 							</Col>
+							<Col lg={6}>
+								<FormInput
+									label="Role"
+									name="role_name"
+									type="select"
+									register={register}
+									containerClass="mb-3"
+									errors={errors}>
+									<option value="">Select a Role</option>
+									{roles.map((role) => (
+										<option key={role._id} value={role._id}>
+											{role.role_name}
+										</option>
+									))}
+								</FormInput>
+							</Col>
+						</Row>
+						<Row>
 							<Col lg={6}>
 								<FormInput
 									label="Password"
 									type="password"
 									name="password"
 									placeholder="Enter Your Password"
-									containerClass="mb-3"
 									register={register}
-									key="password"
+									containerClass="mb-3"
 									errors={errors}
-									control={control}
 								/>
 							</Col>
 						</Row>
-						<Row>
-							<Col lg={6}>
-								<FormInput
-									name="select"
-									label="Input Select"
-									type="select"
-									containerClass="mb-3"
-									className="form-select"
-									register={register}
-									key="select"
-									errors={errors}
-									control={control}>
-									<option defaultValue="selected">Users</option>
-									<option>Manager</option>
-									<option>Financial</option>
-									<option>Inventory</option>
-								</FormInput>
-							</Col>
-						</Row>
+						<Button type="submit" variant="success" disabled={loading}>
+							Update User
+						</Button>
 					</Card.Body>
-				</Card>
-
-				<Card>
-					<Card.Header>
-						<h4 className="header-title mt-5 mt-lg-0">Permission</h4>
-						<p className="text-muted mb-0">
-							Choose what this user is allowed to do.
-						</p>
-					</Card.Header>
-					<Card.Body>
-						<div className="table-responsive-sm">
-							<Table className="table-hover table-centered mb-0">
-								<thead>
-									<tr>
-										<th>Page</th>
-										<th>Create</th>
-										<th>View</th>
-										<th>Edit</th>
-										<th>Delete</th>
-									</tr>
-								</thead>
-								<tbody>
-									{Object.keys(permissions).map((page) => (
-										<tr key={page}>
-											<td>{page}</td>
-											<td>
-												<Form.Check
-													type="checkbox"
-													style={{ cursor: 'pointer' }}
-													checked={
-														permissions[page as keyof Permissions].Create
-													}
-													onChange={() =>
-														handlePermissionChange(
-															page as keyof Permissions,
-															'Create'
-														)
-													}
-												/>
-											</td>
-											<td>
-												<Form.Check
-													type="checkbox"
-													style={{ cursor: 'pointer' }}
-													checked={permissions[page as keyof Permissions].View}
-													onChange={() =>
-														handlePermissionChange(
-															page as keyof Permissions,
-															'View'
-														)
-													}
-												/>
-											</td>
-											<td>
-												<Form.Check
-													type="checkbox"
-													style={{ cursor: 'pointer' }}
-													checked={
-														permissions[page as keyof Permissions].Update
-													}
-													onChange={() =>
-														handlePermissionChange(
-															page as keyof Permissions,
-															'Update'
-														)
-													}
-												/>
-											</td>
-											<td>
-												<Form.Check
-													type="checkbox"
-													style={{ cursor: 'pointer' }}
-													checked={
-														permissions[page as keyof Permissions].Delete
-													}
-													onChange={() =>
-														handlePermissionChange(
-															page as keyof Permissions,
-															'Delete'
-														)
-													}
-												/>
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</Table>
-						</div>
-					</Card.Body>
-				</Card>
-
-				<div className="d-flex justify-content-center mt-3">
-					<Button type="submit" variant="success" disabled={loading}>
-						Update User
-					</Button>
-				</div>
-			</Form>
-			<Toast
-				onClose={() => setShowToast(false)}
-				show={showToast}
-				autohide
-				delay={2000}
-				className={`position-fixed top-0 start-50 translate-middle-x mt-5 toast ${toastVariant}`}
-				style={{
-					zIndex: 1050,
-					width: 'auto',
-					maxWidth: '90%',
-					borderRadius: '8px',
-				}}>
-				<Toast.Body
-					style={{
-						textAlign: 'center',
-						backgroundColor:
-							toastVariant === 'success' ? '#18cc18f1' : '#cc2d18f1',
-						color: 'white',
-						padding: '15px 20px',
-					}}>
-					{toastMessage}
-				</Toast.Body>
-			</Toast>
+				</Form>
+			</Card>
 		</>
 	)
 }

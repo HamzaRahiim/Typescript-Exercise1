@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import App from './App'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
@@ -9,6 +10,7 @@ if (container) {
 	root.render(
 		// <React.StrictMode>
 		<BrowserRouter basename={''}>
+			<Suspense fallback={<div>Loading...</div>}></Suspense>
 			<App />
 		</BrowserRouter>
 		// </React.StrictMode>,

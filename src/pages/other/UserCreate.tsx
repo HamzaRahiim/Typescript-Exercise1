@@ -21,6 +21,9 @@ const schemaResolver = yupResolver(
 
 const UserCreate = () => {
 	const methods = useForm({ resolver: schemaResolver })
+	const { permissions } = useAuthContext()
+
+	const canCreate = permissions.Users?.Create
 	const {
 		handleSubmit,
 		register,
@@ -222,7 +225,10 @@ const UserCreate = () => {
 								</FormInput>
 							</Col>
 						</Row>
-						<Button type="submit" variant="success" disabled={loading}>
+						<Button
+							type="submit"
+							variant="success"
+							disabled={loading || !canCreate}>
 							Register User
 						</Button>
 					</Card.Body>

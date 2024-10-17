@@ -1,5 +1,4 @@
 import { Card, Col, Row, Button, Table, Form, Spinner } from 'react-bootstrap'
-import { useNavigate } from 'react-router-dom'
 import { Permissions } from '@/types'
 import { useState } from 'react'
 import { FormInput, PageBreadcrumb } from '@/components'
@@ -9,11 +8,15 @@ import Swal from 'sweetalert2'
 const Roles = () => {
 	// Initial permissions state
 	const defaultPermissions: Permissions = {
-		Users: { Create: false, View: false, Update: false, Delete: false },
-		Category: { Create: false, View: false, Update: false, Delete: false },
 		Products: { Create: false, View: false, Update: false, Delete: false },
+		Category: { Create: false, View: false, Update: false, Delete: false },
+		Orders: { Create: false, View: false, Update: false, Delete: false },
+		Shippings: { Create: false, View: false, Update: false, Delete: false },
+		Users: { Create: false, View: false, Update: false, Delete: false },
 		Inventory: { Create: false, View: false, Update: false, Delete: false },
-		WareHouse: { Create: false, View: false, Update: false, Delete: false },
+		Policies: { Create: false, View: false, Update: false, Delete: false },
+		Settings: { Create: false, View: false, Update: false, Delete: false },
+		Customers: { Create: false, View: false, Update: false, Delete: false },
 	}
 
 	const [permissions, setPermissions] =
@@ -64,7 +67,7 @@ const Roles = () => {
 			})
 
 			if (response.ok) {
-				const data: any = await response.json()
+				await response.json()
 				Swal.fire({
 					title: 'Role Created Successfully!',
 					text: 'Role with permissions has been created successfully!',
