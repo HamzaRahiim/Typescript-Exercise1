@@ -15,7 +15,7 @@ import { FormInput } from '@/components'
 import { useAuthContext } from '@/common'
 import Swal from 'sweetalert2'
 import { useForm } from 'react-hook-form'
-
+import PasswordChecklist from 'react-password-checklist'
 // Define types for user info and form data
 interface UserInfo {
 	username: string
@@ -34,16 +34,22 @@ const ProfilePages = () => {
 	const BASE_API = import.meta.env.VITE_BASE_API
 	const { user } = useAuthContext()
 	const { token } = user
+	// React Hook Form setup
 	const methods = useForm()
 	const {
 		handleSubmit,
 		register,
 		control,
 		reset,
+		watch,
 		formState: { errors },
 	} = methods
 
+	// Watch newPassword field
+	const newPassword = watch('newPassword')
+
 	// State variables
+	const [isPasswordValid, setIsPasswordValid] = useState(false) // Track if password passes validation
 	const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
 	const [loading, setLoading] = useState<boolean>(false)
 	const [apiLoadinng, setApiLoading] = useState<boolean>(false)
@@ -107,9 +113,6 @@ const ProfilePages = () => {
 	// Submit updated user info
 	const handleSubmitInfo = async (e: React.FormEvent) => {
 		e.preventDefault()
-
-		// Log form data before submitting
-		console.log('Submitting User Info:', formData)
 		setApiLoading(true)
 
 		try {
@@ -151,7 +154,15 @@ const ProfilePages = () => {
 	}
 
 	const handlePasswordSubmit = async (data: any) => {
-		console.log('data pass ', data)
+		if (!isPasswordValid) {
+			Swal.fire({
+				title: 'Error!',
+				text: 'New password does not meet validation criteria.',
+				icon: 'error',
+				timer: 1500,
+			})
+			return
+		}
 		setApiLoading(true)
 
 		try {
@@ -337,10 +348,10 @@ const ProfilePages = () => {
 														/>
 													</Row>
 													<Button
-														variant="success"
+														variant="primary"
 														type="submit"
 														disabled={apiLoadinng}>
-														Save
+														{apiLoadinng ? 'Updating...' : 'Save Changes'}
 													</Button>
 												</form>
 											</Tab.Pane>
@@ -349,34 +360,52 @@ const ProfilePages = () => {
 											<Tab.Pane eventKey="ChangePassword">
 												<Form onSubmit={handleSubmit(handlePasswordSubmit)}>
 													<Row>
-														<Col xs={12} sm={6}>
-															<FormInput
-																label={'Current Password'}
-																containerClass="mb-3"
-																placeholder="Enter Current Password"
+														<Form.Group className="mb-3">
+															<Form.Label>Current Password</Form.Label>
+															<Form.Control
 																type="password"
-																name="currentPassword"
-																register={register}
-																errors={errors}
-																control={control}
+																placeholder="Enter current password"
+																{...register('currentPassword', {
+																	required: 'Current password is required',
+																})}
+																isInvalid={!!errors.currentPassword}
 															/>
-														</Col>
-														<Col xs={12} sm={6}>
-															<FormInput
-																label={'New Password'}
-																placeholder="Enter New Password"
-																containerClass="mb-3"
+														</Form.Group>
+														<Form.Group className="mb-3">
+															<Form.Label>New Password</Form.Label>
+															<Form.Control
 																type="password"
-																name="newPassword"
-																register={register}
-																errors={errors}
-																control={control}
+																placeholder="Enter new password"
+																{...register('newPassword', {
+																	required: 'New password is required',
+																	validate: (value) => {
+																		if (!isPasswordValid)
+																			return 'Password is invalid'
+																	},
+																})}
+																isInvalid={!!errors.newPassword}
 															/>
-														</Col>
+														</Form.Group>
 													</Row>
+
+													{/* Password Validation Checklist */}
+													<PasswordChecklist
+														rules={[
+															'minLength',
+															'specialChar',
+															'number',
+															'capital',
+														]}
+														minLength={8}
+														value={newPassword || ''}
+														onChange={(isValid) => setIsPasswordValid(isValid)}
+														iconSize={10}
+													/>
+
 													<Button
 														type="submit"
-														disabled={apiLoadinng}
+														className="mt-3"
+														disabled={apiLoadinng || !isPasswordValid}
 														variant="success">
 														Change Password
 													</Button>

@@ -21,9 +21,9 @@ const schemaResolver = yupResolver(
 
 const UserCreate = () => {
 	const methods = useForm({ resolver: schemaResolver })
-	const { permissions } = useAuthContext()
+	const { permissions, isSuperUser } = useAuthContext()
 
-	const canCreate = permissions.Users?.Create
+	const canCreate = isSuperUser || permissions.Users?.Create
 	const {
 		handleSubmit,
 		register,

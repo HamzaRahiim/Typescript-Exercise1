@@ -2505,6 +2505,11 @@ react-overlays@^5.2.0:
     uncontrollable "^7.2.1"
     warning "^4.0.3"
 
+react-password-checklist@^1.8.1:
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/react-password-checklist/-/react-password-checklist-1.8.1.tgz#f9ac98db2a2624b83fb23bf28c004970951bb468"
+  integrity sha512-QHIU/OejxoH4/cIfYLHaHLb+yYc8mtL0Vr4HTmULxQg3ZNdI9Ni/yYf7pwLBgsUh4sseKCV/GzzYHWpHqejTGw==
+
 react-popper@^2.2.3, react-popper@^2.2.5:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-2.3.0.tgz#17891c620e1320dce318bad9fede46a5f71c70ba"

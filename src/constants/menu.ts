@@ -158,21 +158,27 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		children: [
 			{
 				key: 'View',
-				label: 'Roles',
-				url: '/user/roles',
-				parentKey: 'user-management',
-			},
-			{
-				key: 'View',
 				label: 'All Users',
 				url: '/user/user-all',
-				parentKey: 'user-management',
+				parentKey: 'users',
 			},
 			{
 				key: 'Create',
 				label: 'Add New User',
 				url: '/user/user-create',
-				parentKey: 'user-management',
+				parentKey: 'users',
+			},
+			{
+				key: 'View',
+				label: 'All Roles',
+				url: '/user/role-all',
+				parentKey: 'users',
+			},
+			{
+				key: 'Create',
+				label: 'Add New Roles',
+				url: '/user/roles',
+				parentKey: 'users',
 			},
 		],
 	},

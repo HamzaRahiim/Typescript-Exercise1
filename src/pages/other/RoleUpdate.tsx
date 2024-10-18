@@ -1,13 +1,20 @@
-import { Card, Col, Row, Button, Table, Form, Spinner } from 'react-bootstrap'
-import { Permissions } from '@/types'
-import { useState } from 'react'
-import { FormInput, PageBreadcrumb } from '@/components'
 import { useAuthContext } from '@/common'
+import { FormInput, PageBreadcrumb } from '@/components'
+import { useEffect, useState } from 'react'
+import { Button, Card, Col, Form, Row, Spinner, Table } from 'react-bootstrap'
+import { useParams } from 'react-router-dom'
+import { Permissions } from '@/types'
 import Swal from 'sweetalert2'
-import { Link } from 'react-router-dom'
 
-const Roles = () => {
-	// Initial permissions state
+const RoleUpdate = () => {
+	const { id } = useParams() // Get the user id from the URL params
+	const { user } = useAuthContext() // Get the authenticated user's token
+	const { token } = user
+	const BASE_API = import.meta.env.VITE_BASE_API
+	const [role, setRole] = useState('')
+
+	const [loading, setLoading] = useState<Boolean>(true)
+
 	const defaultPermissions: Permissions = {
 		Products: { Create: false, View: false, Update: false, Delete: false },
 		Category: { Create: false, View: false, Update: false, Delete: false },
@@ -23,11 +30,6 @@ const Roles = () => {
 	const [permissions, setPermissions] =
 		useState<Permissions>(defaultPermissions)
 
-	const { user } = useAuthContext()
-
-	const [role, setRole] = useState('') // Track the role input
-	const [loading, setLoading] = useState(false)
-	// Function to reset form after successful submission
 	const resetForm = () => {
 		setPermissions(defaultPermissions) // Reset checkboxes to default
 		setRole('') // Reset the role field
@@ -45,7 +47,53 @@ const Roles = () => {
 			},
 		}))
 	}
+	useEffect(() => {
+		const fetchRoles = async () => {
+			try {
+				// Fetch all user roles from the API
+				const response = await fetch(`${BASE_API}/api/users/role`, {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`, // Pass token for authorization
+					},
+				})
 
+				const data = await response.json()
+
+				if (response.ok) {
+					// Find the specific role based on the ID
+					const userRole = data.find((role: any) => role._id === id)
+					if (userRole) {
+						console.log('User Role:', userRole)
+					} else {
+						console.log('No role found for the provided user ID.')
+					}
+				} else {
+					console.error('Failed to fetch roles:', data.message)
+				}
+			} catch (error) {
+				console.error('Error fetching roles:', error)
+			} finally {
+				setLoading(false) // Turn off the loading spinner
+			}
+		}
+
+		// Call the fetch function on mount
+		// fetchRoles()
+	}, [id])
+
+	if (loading) {
+		return (
+			<div
+				className="d-flex justify-content-center align-items-center"
+				style={{ height: '100vh' }}>
+				<Spinner animation="grow" style={{ margin: '0 5px' }} />
+				<Spinner animation="grow" style={{ margin: '0 5px' }} />
+				<Spinner animation="grow" style={{ margin: '0 5px' }} />
+			</div>
+		)
+	}
 	const handleSubmit = async () => {
 		setLoading(true)
 		const roleData = {
@@ -104,10 +152,9 @@ const Roles = () => {
 			)
 		}
 	}
-
 	return (
-		<div>
-			<PageBreadcrumb title="Create New Role" subName="User" />
+		<>
+			<PageBreadcrumb title="Update Role" subName="User" />
 			<Card>
 				<Card.Header>
 					<h4 className="header-title">{`Role & Permission`}</h4>
@@ -122,8 +169,6 @@ const Roles = () => {
 								name="role_name"
 								placeholder="Enter Role Name"
 								containerClass="mb-3"
-								value={role}
-								onChange={(e) => setRole(e.target.value)} // Update role state
 								key="role_name"
 							/>
 						</Col>
@@ -214,8 +259,8 @@ const Roles = () => {
 					</Button>
 				</Card.Body>
 			</Card>
-		</div>
+		</>
 	)
 }
 
-export default Roles
+export default RoleUpdate

@@ -10,24 +10,25 @@ import { MdEdit, MdDelete } from 'react-icons/md'
 import Swal from 'sweetalert2'
 
 // Pagination options
-const sizePerPageList: PageSize[] = [
-	{ text: '15', value: 15 },
-	{ text: '25', value: 25 },
-	{ text: '30', value: 30 },
-	{ text: 'All', value: employeeRecords.length },
-]
 
 const ContactList = () => {
-	const { user, permissions } = useAuthContext()
+	const { user, permissions, isSuperUser } = useAuthContext()
 
-	const canUpdate = permissions.Users?.Update
-	const canDelete = permissions.Users?.Delete
+	const canUpdate = isSuperUser || permissions.Users?.Update
+	const canDelete = isSuperUser || permissions.Users?.Delete
 
 	// State hooks
 	const [data, setData] = useState<Employee[]>([])
 	const [loading, setLoading] = useState<boolean>(true)
 	const [error, setError] = useState<string | null>(null)
+	const [employlist, setEmploylist] = useState<any>(null)
 
+	const sizePerPageList: PageSize[] = [
+		{ text: '15', value: 15 },
+		{ text: '25', value: 25 },
+		{ text: '30', value: 30 },
+		{ text: 'All', value: employlist },
+	]
 	// Fetch user data from API
 	const fetchUserData = async () => {
 		setLoading(true)
@@ -59,7 +60,7 @@ const ContactList = () => {
 				action: null,
 				id: item._id,
 			}))
-
+			setEmploylist(fetchedData.length)
 			setData(mappedData)
 		} catch (error: any) {
 			console.log('error in fetching user ', error.message)
@@ -87,7 +88,12 @@ const ContactList = () => {
 			}
 
 			fetchUserData() // Refresh the data after deletion
-			Swal.fire('Deleted!', 'User has been deleted successfully.', 'success')
+			Swal.fire({
+				title: 'Deleted!',
+				text: 'User deleted successfully.',
+				icon: 'success',
+				timer: 1500,
+			})
 		} catch (error: any) {
 			setError(error.message)
 			Swal.fire('Error!', 'User deletion failed.', 'error')

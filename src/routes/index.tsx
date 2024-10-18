@@ -29,7 +29,8 @@ const Role = React.lazy(() => import('../pages/other/Roles'))
 const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
 const UsersPages = React.lazy(() => import('../pages/other/UserCreate'))
 const UserUpdates = React.lazy(() => import('../pages/other/UserUpdate'))
-
+const AllRolesUser = React.lazy(() => import('../pages/other/All_Roles'))
+const RoleUpdates = React.lazy(() => import('../pages/other/RoleUpdate'))
 // // base ui
 const Accordions = React.lazy(() => import('../pages/ui/Accordions'))
 const Alerts = React.lazy(() => import('../pages/ui/Alerts'))
@@ -189,20 +190,38 @@ const customPagesRoutes = {
 			),
 		},
 		{
-			path: '/user/roles/',
-			name: 'Roles',
-			element: (
-				<PrivateRoute requiredPermission="Users">
-					<Role />
-				</PrivateRoute>
-			),
-		},
-		{
 			path: '/user/update/:id',
 			name: 'User Update',
 			element: (
 				<PrivateRoute requiredPermission="Users" to_do="Update">
 					<UserUpdates />
+				</PrivateRoute>
+			),
+		},
+		{
+			path: '/user/roles/',
+			name: 'Roles',
+			element: (
+				<PrivateRoute requiredPermission="Users" to_do="Create">
+					<Role />
+				</PrivateRoute>
+			),
+		},
+		{
+			path: '/user/role-all/',
+			name: 'All Roles',
+			element: (
+				<PrivateRoute requiredPermission="Users" to_do="View">
+					<AllRolesUser />
+				</PrivateRoute>
+			),
+		},
+		{
+			path: '/user/update/role/:id',
+			name: 'Role Update',
+			element: (
+				<PrivateRoute requiredPermission="Users" to_do="Update">
+					<RoleUpdates />
 				</PrivateRoute>
 			),
 		},
