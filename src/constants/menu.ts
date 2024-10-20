@@ -231,7 +231,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 			{
 				key: 'basicc-settings',
 				label: 'Basic Settings',
-				url: '/',
+				url: '/settings/basic-setting',
 				parentKey: 'settings',
 			},
 		],

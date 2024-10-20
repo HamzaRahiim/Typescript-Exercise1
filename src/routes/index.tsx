@@ -3,7 +3,6 @@ import { Route, RouteProps } from 'react-router-dom'
 
 // components
 import PrivateRoute from './PrivateRoute'
-import UserUpdate from '@/pages/other/UserUpdate'
 
 // lazy load all the views
 
@@ -58,7 +57,9 @@ const Tabs = React.lazy(() => import('../pages/ui/Tabs'))
 const Tooltips = React.lazy(() => import('../pages/ui/Tooltips'))
 const Typography = React.lazy(() => import('../pages/ui/Typography'))
 const Utilities = React.lazy(() => import('../pages/ui/Utilities'))
-
+const BasicSettings = React.lazy(
+	() => import('@/pages/other/settings/BasicSetting')
+)
 // // extended ui
 const Portlets = React.lazy(() => import('../pages/extended/Portlets'))
 const RangeSlider = React.lazy(() => import('../pages/extended/RangeSlider'))
@@ -222,6 +223,15 @@ const customPagesRoutes = {
 			element: (
 				<PrivateRoute requiredPermission="Users" to_do="Update">
 					<RoleUpdates />
+				</PrivateRoute>
+			),
+		},
+		{
+			path: '/settings/basic-setting',
+			name: 'Basic Settings',
+			element: (
+				<PrivateRoute requiredPermission="Settings" to_do="View">
+					<BasicSettings />
 				</PrivateRoute>
 			),
 		},

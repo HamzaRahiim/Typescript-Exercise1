@@ -46,20 +46,21 @@ const ContactList = () => {
 				},
 			})
 
+			const fetchedData = await response.json()
 			if (!response.ok) {
 				throw new Error('Failed to fetch user data')
 			}
 
-			const fetchedData = await response.json()
 			const mappedData = fetchedData.map((item: any, index: number) => ({
 				id_ui: index + 1,
-				name: item.username,
-				phone: item.phone_number,
-				role: item.role.role_name,
-				email: item.email,
+				name: item.username || 'No Name', // Safely handle null or undefined username
+				phone: item.phone_number || 'No Phone Number', // Safely handle null or undefined phone number
+				role: item.role ? item.role.role_name : 'No Role', // Safely handle null or undefined role
+				email: item.email || 'No Email', // Safely handle null or undefined email
 				action: null,
-				id: item._id,
+				id: item._id || 'No ID', // Safely handle null or undefined ID
 			}))
+
 			setEmploylist(fetchedData.length)
 			setData(mappedData)
 		} catch (error: any) {

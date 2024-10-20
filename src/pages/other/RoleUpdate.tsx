@@ -66,6 +66,8 @@ const RoleUpdate = () => {
 					const userRole = data.find((role: any) => role._id === id)
 					if (userRole) {
 						console.log('User Role:', userRole)
+						setRole(userRole.role_name) // Set the role in state
+						setPermissions(userRole.permissions) // Set the permissions in state
 					} else {
 						console.log('No role found for the provided user ID.')
 					}
@@ -80,7 +82,7 @@ const RoleUpdate = () => {
 		}
 
 		// Call the fetch function on mount
-		// fetchRoles()
+		fetchRoles()
 	}, [id])
 
 	if (loading) {
@@ -105,34 +107,39 @@ const RoleUpdate = () => {
 		try {
 			const token = user.token
 			const BASE_API = import.meta.env.VITE_BASE_API
-			const response = await fetch(`${BASE_API}/api/users/role`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify(roleData),
-			})
+			const response = await fetch(
+				`${BASE_API}/api/users/role/${id ? id : ''}`,
+				{
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify(roleData),
+				}
+			)
 
 			if (!response.ok) {
 				const errorData = await response.json()
-				throw new Error(errorData.message || 'Registration failed')
+				throw new Error(errorData.message || 'Role Updation failed')
 			}
 
 			if (response.ok) {
 				await response.json()
 				Swal.fire({
-					title: 'Role Created Successfully!',
-					text: 'Role with permissions has been created successfully!',
+					title: 'Update Successfully!',
+					text: 'Role with permissions has been updated successfully!',
 					icon: 'success',
 					timer: 1500,
 				})
-				resetForm()
+				// resetForm()
 			}
 		} catch (error: any) {
+			console.log(' error is caught ', error)
+
 			Swal.fire({
-				title: 'Error!',
-				text: `This Role is already taken. Please choose another one.`,
+				title: 'Sorry!',
+				text: `An Error Occured, while updating Role Policy. Please try again later.`,
 				icon: 'error',
 				timer: 1500,
 			})
@@ -167,7 +174,9 @@ const RoleUpdate = () => {
 								label="Role"
 								type="text"
 								name="role_name"
+								value={role} // Bind the role state to input
 								placeholder="Enter Role Name"
+								onChange={(e) => setRole(e.target.value)} // Update state on change
 								containerClass="mb-3"
 								key="role_name"
 							/>
