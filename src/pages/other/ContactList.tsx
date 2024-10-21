@@ -16,7 +16,7 @@ const ContactList = () => {
 
 	const canUpdate = isSuperUser || permissions.Users?.Update
 	const canDelete = isSuperUser || permissions.Users?.Delete
-
+	const canCreate = isSuperUser || permissions.Users?.Create
 	// State hooks
 	const [data, setData] = useState<Employee[]>([])
 	const [loading, setLoading] = useState<boolean>(true)
@@ -105,7 +105,7 @@ const ContactList = () => {
 	const handleDeleteConfirmation = (userId: string) => {
 		Swal.fire({
 			title: 'Are you sure?',
-			text: "This action can't be undone!",
+			text: 'This User will be deleted!',
 			icon: 'warning',
 			showCancelButton: true,
 			confirmButtonColor: '#3085d6',
@@ -183,8 +183,20 @@ const ContactList = () => {
 								<div>
 									<h4 className="header-title">User List</h4>
 									<p className="text-muted mb-0">
-										A list of all registered users in the system
+										A list of all registered users.
 									</p>
+								</div>
+								<div className="mt-3 mt-lg-0">
+									{' '}
+									{/* Responsive margin for small screens */}
+									<Button
+										disabled={!canCreate}
+										style={{ border: 'none' }}
+										variant="none">
+										<Link to="/user/user-create" className="btn btn-success">
+											<i className="bi bi-plus"></i> Add New User
+										</Link>
+									</Button>
 								</div>
 							</div>
 						</Card.Header>

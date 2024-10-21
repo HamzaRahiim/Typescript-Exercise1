@@ -230,7 +230,7 @@ const customPagesRoutes = {
 			path: '/settings/basic-setting',
 			name: 'Basic Settings',
 			element: (
-				<PrivateRoute requiredPermission="Settings" to_do="View">
+				<PrivateRoute requiredPermission="Settings" to_do="Update">
 					<BasicSettings />
 				</PrivateRoute>
 			),

@@ -12,6 +12,7 @@ const All_Roles = () => {
 
 	const canUpdate = isSuperUser || permissions.Users?.Update
 	const canDelete = isSuperUser || permissions.Users?.Delete
+	const canCreate = isSuperUser || permissions.Users?.Create
 
 	const [data, setData] = useState<any[]>([])
 	const [loading, setLoading] = useState<boolean>(true)
@@ -145,14 +146,6 @@ const All_Roles = () => {
 		)
 	}
 
-	// if (error) {
-	// 	return Swal.fire({
-	// 		title: 'Failed to retrieve user data',
-	// 		text: error,
-	// 		icon: 'error',
-	// 	})
-	// }
-
 	return (
 		<>
 			<PageBreadcrumb title="Roles List" subName="User" />
@@ -166,6 +159,18 @@ const All_Roles = () => {
 								A list of all Roles in the system
 							</p>
 						</div>
+						<div className="mt-3 mt-lg-0">
+							{' '}
+							{/* Responsive margin for small screens */}
+							<Button
+								disabled={!canCreate}
+								style={{ border: 'none' }}
+								variant="none">
+								<Link to="/user/roles" className="btn btn-success">
+									<i className="bi bi-plus"></i> Add New Role
+								</Link>
+							</Button>
+						</div>
 					</div>
 				</Card.Header>
 				<Card.Body>
@@ -175,7 +180,6 @@ const All_Roles = () => {
 							data={data}
 							pageSize={15}
 							sizePerPageList={sizePerPageList}
-							isSortable
 							pagination
 							isSearchable
 							isSelectable

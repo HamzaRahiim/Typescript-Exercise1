@@ -229,7 +229,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		icon: IoSettingsSharp,
 		children: [
 			{
-				key: 'basicc-settings',
+				key: 'Update',
 				label: 'Basic Settings',
 				url: '/settings/basic-setting',
 				parentKey: 'settings',

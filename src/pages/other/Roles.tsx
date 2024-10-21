@@ -110,7 +110,20 @@ const Roles = () => {
 			<PageBreadcrumb title="Create New Role" subName="User" />
 			<Card>
 				<Card.Header>
-					<h4 className="header-title">{`Role & Permission`}</h4>
+					<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center">
+						<div>
+							<h4 className="header-title">{`Role & Permission`}</h4>
+						</div>
+						<div className="mt-3 mt-lg-0">
+							{' '}
+							{/* Responsive margin for small screens */}
+							<Button style={{ border: 'none' }} variant="none">
+								<Link to="/user/role-all" className="btn btn-danger">
+									See All Roles
+								</Link>
+							</Button>
+						</div>
+					</div>
 				</Card.Header>
 				<Card.Body>
 					<Row>

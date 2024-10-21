@@ -41,12 +41,14 @@ export default function useLogin() {
 
 			if (data.token) {
 				setSuccess(true)
+				console.log(' before sace session ')
+
 				const userSession = {
-					is_superuser: data.user.is_superuser,
-					permissions: data.user.role.permissions,
-					token: data.token,
-					username: data.user.username,
-					role: data.user.role.role_name,
+					is_superuser: data.user.is_superuser ?? null, // Default to null if undefined
+					permissions: data.user.role.permissions ?? null,
+					token: data.token ?? null,
+					username: data.user.username ?? null,
+					role: data.user.role.role_name ?? null,
 				}
 				console.log(
 					' data saving in local before in uselogin page',

@@ -6,6 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { useAuthContext } from '@/common'
 import Swal from 'sweetalert2'
+import { Link } from 'react-router-dom'
 
 const schemaResolver = yupResolver(
 	yup.object().shape({
@@ -138,10 +139,23 @@ const UserCreate = () => {
 			<PageBreadcrumb title="Add New User" subName="User" />
 			<Card>
 				<Card.Header>
-					<h4 className="header-title">Account</h4>
-					<p className="text-muted mb-0">
-						Fill in the information below to add a new account
-					</p>
+					<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center">
+						<div>
+							<h4 className="header-title">Account</h4>
+							<p className="text-muted mb-0">
+								Fill in the information below to add a new account
+							</p>
+						</div>
+						<div className="mt-3 mt-lg-0">
+							{' '}
+							{/* Responsive margin for small screens */}
+							<Button style={{ border: 'none' }} variant="none">
+								<Link to="/user/user-all" className="btn btn-danger">
+									See All Users
+								</Link>
+							</Button>
+						</div>
+					</div>
 				</Card.Header>
 				<Form onSubmit={handleSubmit(handleFormSubmit)}>
 					<Card.Body>

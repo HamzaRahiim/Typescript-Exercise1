@@ -20,23 +20,13 @@ const schemaResolver = yupResolver(
 
 const Login = () => {
 	const { loading, login, redirectUrl, isAuthenticated, error } = useLogin()
-	// const navigate = useNavigate()
 
 	const handleSubmit = async (data: UserData) => {
 		const result = await login(data)
-		// if (result.success)
-		// 	setTimeout(() => {
-		// 		setShowToast(false)
-		// 		navigate(redirectUrl)
-		// 	}, 3000) // Wait for 3 seconds before redirecting
-		// }
 	}
 
 	useEffect(() => {
 		if (error) {
-			// setToastType('error')
-			// setToastMessage(error)
-			// setShowToast(true)
 			Swal.fire({
 				icon: 'error',
 				title: 'Login Failed',
