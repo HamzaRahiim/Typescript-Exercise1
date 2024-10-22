@@ -30,6 +30,8 @@ const UsersPages = React.lazy(() => import('../pages/other/UserCreate'))
 const UserUpdates = React.lazy(() => import('../pages/other/UserUpdate'))
 const AllRolesUser = React.lazy(() => import('../pages/other/All_Roles'))
 const RoleUpdates = React.lazy(() => import('../pages/other/RoleUpdate'))
+const Categories = React.lazy(() => import('../pages/products/Categories'))
+const Products = React.lazy(() => import('../pages/products/Products'))
 // // base ui
 const Accordions = React.lazy(() => import('../pages/ui/Accordions'))
 const Alerts = React.lazy(() => import('../pages/ui/Alerts'))
@@ -153,25 +155,6 @@ const customPagesRoutes = {
 			element: <ProfilePages />,
 			route: PrivateRoute,
 		},
-
-		{
-			path: '/products/add-product',
-			name: 'Add Product',
-			element: (
-				<PrivateRoute requiredPermission="Products">
-					<StarterPages />
-				</PrivateRoute>
-			),
-		},
-		{
-			path: '/products/all-product',
-			name: 'All Products',
-			element: (
-				<PrivateRoute requiredPermission="Products">
-					<InvoicePages />
-				</PrivateRoute>
-			),
-		},
 		{
 			path: '/user/user-all',
 			name: 'Contact List',
@@ -232,6 +215,34 @@ const customPagesRoutes = {
 			element: (
 				<PrivateRoute requiredPermission="Settings" to_do="Update">
 					<BasicSettings />
+				</PrivateRoute>
+			),
+		},
+		// ************ Products Pages *********************
+		{
+			path: '/products/all-product',
+			name: 'All Products',
+			element: (
+				<PrivateRoute requiredPermission="Products">
+					<Products />
+				</PrivateRoute>
+			),
+		},
+		{
+			path: '/products/add-product',
+			name: 'Add Product',
+			element: (
+				<PrivateRoute requiredPermission="Products" to_do="View">
+					<StarterPages />
+				</PrivateRoute>
+			),
+		},
+		{
+			path: '/products/categories',
+			name: 'Products Categories',
+			element: (
+				<PrivateRoute requiredPermission="Products" to_do="Create">
+					<Categories />
 				</PrivateRoute>
 			),
 		},

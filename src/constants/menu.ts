@@ -40,16 +40,46 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		isTitle: false,
 		icon: MdProductionQuantityLimits,
 		children: [
+			// {
+			// 	key: 'View',
+			// 	label: 'All Products',
+			// 	url: '/products/all-product',
+			// 	parentKey: 'products',
+			// },
 			{
-				key: 'View',
-				label: 'All Products',
+				key: 'Create',
+				label: 'Items Management',
 				url: '/products/all-product',
 				parentKey: 'products',
 			},
 			{
 				key: 'Create',
-				label: 'Add Product',
-				url: '/products/add-product',
+				label: 'Categories Management',
+				url: '/products/categories',
+				parentKey: 'products',
+			},
+			{
+				key: 'Create',
+				label: 'Sub-Category Management',
+				url: '/products/sub-category',
+				parentKey: 'products',
+			},
+			{
+				key: 'Create',
+				label: 'Brand Management',
+				url: '/products/brand',
+				parentKey: 'products',
+			},
+			{
+				key: 'Create',
+				label: 'Product Variation',
+				url: '/products/variation',
+				parentKey: 'products',
+			},
+			{
+				key: 'Create',
+				label: 'Home Features',
+				url: '/products/home-features',
 				parentKey: 'products',
 			},
 			// {

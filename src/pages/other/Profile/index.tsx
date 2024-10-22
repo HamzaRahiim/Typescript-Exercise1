@@ -16,6 +16,7 @@ import { useAuthContext } from '@/common'
 import Swal from 'sweetalert2'
 import { useForm } from 'react-hook-form'
 import PasswordChecklist from 'react-password-checklist'
+import SimpleLoader from '../SimpleLoader'
 // Define types for user info and form data
 interface UserInfo {
 	username: string
@@ -197,7 +198,7 @@ const ProfilePages = () => {
 			console.error('Error updating user Password:', error)
 			Swal.fire({
 				title: 'Error!',
-				text: error,
+				text: error.message,
 				icon: 'error',
 				timer: 1500,
 			})
@@ -207,15 +208,7 @@ const ProfilePages = () => {
 	}
 	// Conditional rendering for loading state
 	if (loading) {
-		return (
-			<div
-				className="d-flex justify-content-center align-items-center"
-				style={{ height: '100vh' }}>
-				<Spinner animation="grow" style={{ margin: '0 5px' }} />
-				<Spinner animation="grow" style={{ margin: '0 5px' }} />
-				<Spinner animation="grow" style={{ margin: '0 5px' }} />
-			</div>
-		)
+		return <SimpleLoader />
 	}
 
 	return (
@@ -407,7 +400,7 @@ const ProfilePages = () => {
 														className="mt-3"
 														disabled={apiLoadinng || !isPasswordValid}
 														variant="success">
-														Change Password
+														{apiLoadinng ? 'Updating...' : 'Change Password'}
 													</Button>
 												</Form>
 											</Tab.Pane>
