@@ -32,6 +32,9 @@ const AllRolesUser = React.lazy(() => import('../pages/other/All_Roles'))
 const RoleUpdates = React.lazy(() => import('../pages/other/RoleUpdate'))
 const Categories = React.lazy(() => import('../pages/products/Categories'))
 const Products = React.lazy(() => import('../pages/products/Products'))
+const SubCategory = React.lazy(() => import('../pages/products/SubCategory'))
+const Brands = React.lazy(() => import('../pages/products/Brands'))
+
 // // base ui
 const Accordions = React.lazy(() => import('../pages/ui/Accordions'))
 const Alerts = React.lazy(() => import('../pages/ui/Alerts'))
@@ -241,8 +244,26 @@ const customPagesRoutes = {
 			path: '/products/categories',
 			name: 'Products Categories',
 			element: (
-				<PrivateRoute requiredPermission="Products" to_do="Create">
+				<PrivateRoute requiredPermission="Products" to_do="View">
 					<Categories />
+				</PrivateRoute>
+			),
+		},
+		{
+			path: 'products/sub-category',
+			name: 'Products Sub Categories',
+			element: (
+				<PrivateRoute requiredPermission="Products" to_do="View">
+					<SubCategory />
+				</PrivateRoute>
+			),
+		},
+		{
+			path: '/products/brand',
+			name: 'Products Brands',
+			element: (
+				<PrivateRoute requiredPermission="Products" to_do="View">
+					<Brands />
 				</PrivateRoute>
 			),
 		},

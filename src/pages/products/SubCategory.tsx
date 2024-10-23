@@ -13,23 +13,11 @@ import { useAuthContext } from '@/common'
 import Swal from 'sweetalert2'
 import { useToggle } from '@/hooks'
 import { SingleFileUploader } from '@/components/FileUploader/SingleFileUploader'
-import { useForm } from 'react-hook-form'
+import { set, useForm } from 'react-hook-form'
 import SimpleLoader from '../other/SimpleLoader'
+import { TableRecord } from './Categories'
 
-// basic tables
-export interface TableRecord {
-	_id: number
-	name: string
-	description?: string
-	isNotShowed?: string
-	productCount?: string
-	image?: string
-	cell?: string
-	activeClass?: string
-	parentCategory?: any
-}
-
-const Categories = () => {
+const SubCategory = () => {
 	const { isSuperUser, permissions, user } = useAuthContext()
 	const canUpdate = isSuperUser || permissions.Users?.Update
 	const canDelete = isSuperUser || permissions.Users?.Delete
@@ -42,21 +30,20 @@ const Categories = () => {
 	const [sortedAsc, setSortedAsc] = useState(true)
 	const [showDeleteButton, setShowDeleteButton] = useState(false)
 	const [selectedImage, setSelectedImage] = useState<File | null>(null)
-	const [apiLoading, setApiLoading] = useState(false)
 	const [loading, setLoading] = useState(false)
-	const [categoryData, setCategoryData] = useState<TableRecord[]>([])
-	const [editingCategory, setEditingCategory] = useState<TableRecord | null>(
-		null
-	)
+	const [parentCategories, setParentCategories] = useState<TableRecord[]>([])
+	const [apiLoading, setApiLoading] = useState(false)
+	const [subCategoryData, setSubCategoryData] = useState<TableRecord[]>([])
+	const [editingSubCategory, setEditingSubCategory] =
+		useState<TableRecord | null>(null)
 
 	const BASE_API = import.meta.env.VITE_BASE_API
-	const { token } = user
-
+	const token = user.token
 	const {
 		handleSubmit,
 		register,
-		reset,
 		control,
+		reset,
 		setValue,
 		formState: { errors },
 	} = useForm()
@@ -66,40 +53,6 @@ const Categories = () => {
 		setShowDeleteButton(selectedRows.length > 0)
 	}, [itemsPerPage, selectedRows])
 
-	useEffect(() => {
-		getCategories()
-	}, [])
-
-	const deleteCategory = async (categoryId: string) => {
-		try {
-			const response = await fetch(
-				`${BASE_API}/api/categories/category/${categoryId}`,
-				{
-					method: 'DELETE',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			)
-
-			if (!response.ok) {
-				throw new Error('Failed to delete category')
-			}
-
-			getCategories() // Refresh the data after deletion
-			Swal.fire({
-				title: 'Deleted!',
-				text: 'Category deleted successfully.',
-				icon: 'success',
-				timer: 1500,
-			})
-		} catch (error: any) {
-			// setError(error.message)
-			Swal.fire('Oops!', 'Category deletion failed.', 'error')
-		}
-	}
-
 	const handleDeleteSelected = () => {
 		Swal.fire({
 			title: 'Are you sure?',
@@ -108,29 +61,68 @@ const Categories = () => {
 			showCancelButton: true,
 			confirmButtonColor: '#3085d6',
 			cancelButtonColor: '#d33',
-			confirmButtonText: 'Remove All!',
+			confirmButtonText: 'Yes, delete it!',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				// deleteCategory()
+				// deleteUser(user_id)
 				console.log('delete user success')
 			}
 		})
-		console.log('Delete IDs:', selectedRows)
+		console.log('Delete _IDs:', selectedRows)
 	}
 	const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.checked) {
-			setSelectedRows(categoryData.map((record) => record._id))
+			setSelectedRows(subCategoryData.map((record) => record._id))
 		} else {
 			setSelectedRows([])
 		}
 	}
 
-	const handleSelectRow = (id: number) => {
+	const handleSelectRow = (_id: number) => {
 		setSelectedRows((prev) =>
-			prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
+			prev.includes(_id)
+				? prev.filter((row_id) => row_id !== _id)
+				: [...prev, _id]
 		)
 	}
-	const handleDeleteConfirmation = (userId: string) => {
+
+	const deleteItem = async (user_id: string) => {
+		try {
+			setApiLoading(true)
+			const response = await fetch(
+				`${BASE_API}/api/categories/subcategory/${user_id}`,
+				{
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			)
+			if (!response.ok) {
+				throw new Error('Failed to delete category')
+			}
+
+			Swal.fire({
+				title: 'Deleted!',
+				text: 'Sub-Category deleted successfully.',
+				icon: 'success',
+				timer: 1500,
+			})
+			getAllSubCategories() // Refresh the data after deletion
+		} catch (error: any) {
+			console.error('Error deleting user:', error)
+			Swal.fire({
+				title: 'Oops!',
+				text: error.message,
+				icon: 'error',
+				timer: 1500,
+			})
+		} finally {
+			setApiLoading(false)
+		}
+	}
+	const handleDeleteConfirmation = (user_id: string) => {
 		Swal.fire({
 			title: 'Are you sure?',
 			text: 'This Items will be deleted!',
@@ -141,8 +133,7 @@ const Categories = () => {
 			confirmButtonText: 'Remove!',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				deleteCategory(userId)
-				console.log('delete user success')
+				deleteItem(user_id)
 			}
 		})
 	}
@@ -154,7 +145,7 @@ const Categories = () => {
 		setSortedAsc(!sortedAsc)
 	}
 
-	const filteredRecords = categoryData
+	const filteredRecords = subCategoryData
 		.filter((record) =>
 			record.name.toLowerCase().includes(searchTerm.toLowerCase())
 		)
@@ -171,29 +162,37 @@ const Categories = () => {
 		currentPage * itemsPerPage
 	)
 	const [isOpen, toggleModal] = useToggle() // Using toggle for modal state
+
 	const handletoggleModal = () => {
 		if (isOpen) {
-			reset({ name: '', description: '' })
+			reset({ name: '', description: '', parentCategory: '' })
 			setSelectedImage(null)
-			setEditingCategory(null)
+			setEditingSubCategory(null)
 		}
 		toggleModal()
 	}
-	const handleAddCategory = async (categoryData: any) => {
+	const toggleEditModal = (subCategory: TableRecord) => {
+		setEditingSubCategory(subCategory)
+		setValue('name', subCategory.name)
+		setValue('description', subCategory.description || '')
+		setValue('parentCategory', subCategory.parentCategory._id)
+		toggleModal()
+	}
+	const handleAddSubCategory = async (categoryData: any) => {
 		// You can further handle this data and send it to an API endpoint here
-		console.log('Category Data:', categoryData)
+		console.log('Sub Category Data:', categoryData)
 
 		const formData = new FormData()
 		formData.append('name', categoryData.name)
 		formData.append('description', categoryData.description)
+		formData.append('parentCategory', categoryData.parentCategory)
 		if (selectedImage) {
 			formData.append('image', selectedImage)
 		}
 
-		setApiLoading(true)
-
 		try {
-			const response = await fetch(`${BASE_API}/api/categories/category`, {
+			setApiLoading(true)
+			const response = await fetch(`${BASE_API}/api/categories/subcategory`, {
 				method: 'POST',
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -203,23 +202,24 @@ const Categories = () => {
 
 			if (!response.ok) {
 				const errorMessage = await response.json()
-				throw new Error(errorMessage.message || 'Failed to Add Category')
+				throw new Error(
+					errorMessage.message || 'Failed to add new Sub-category'
+				)
 			}
 
 			const data_res = await response.json()
 			if (data_res) {
 				Swal.fire({
 					title: 'ADDED!',
-					text: 'Category added successfully!',
+					text: 'Sub-Category added successfully!',
 					icon: 'success',
 					confirmButtonText: 'OK',
 					timer: 1500,
 				})
-				getCategories()
-				reset()
+				getAllSubCategories()
 			}
 		} catch (error: any) {
-			console.error('Error Adding Category', error)
+			console.error('Error adding sub-category:', error)
 			Swal.fire({
 				title: 'Oops!',
 				text: error.message,
@@ -230,49 +230,75 @@ const Categories = () => {
 			setApiLoading(false)
 		}
 	}
+	const getAllSubCategories = async () => {
+		try {
+			setLoading(true)
+			const response = await fetch(`${BASE_API}/api/categories/subcategory`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+				},
+			})
+			if (!response.ok) {
+				const errorMessage = await response.json()
+				throw new Error(errorMessage.message || 'Failed to get subcategories')
+			}
+			const data: TableRecord[] = await response.json()
 
-	const getCategories = async () => {
+			console.log('data from sub-category ', data)
+
+			if (data) {
+				setSubCategoryData(data)
+			}
+		} catch (error: any) {
+			console.error('Error getting category data :', error)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	const getParentCategory = async () => {
 		try {
 			setLoading(true)
 			const response = await fetch(`${BASE_API}/api/categories/category`, {
 				method: 'GET',
 				headers: {
 					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
 				},
 			})
 
 			if (!response.ok) {
 				const errorMessage = await response.json()
-				throw new Error(errorMessage.message || 'Failed to get categories')
+				throw new Error(errorMessage.message || 'Failed to get Category')
 			}
 
-			const data_res: TableRecord[] = await response.json()
-			if (data_res) {
-				setCategoryData(data_res)
+			const data_res = await response.json()
+			if (data_res.length > 0) {
+				setParentCategories(data_res)
 			}
-			console.log(' date get from the api is ', data_res)
+			console.log(' data from api of categories get ', data_res)
 		} catch (error: any) {
-			console.error('Error updating user Password:', error)
+			console.error('Error getting category data :', error)
 		} finally {
 			setLoading(false)
 		}
 	}
-
-	const handleUpdateCategory = async (categoryData: any) => {
-		console.log('Updating Category Data:', categoryData)
-
+	// Add handleUpdateSubCategory function
+	const handleUpdateSubCategory = async (subCategoryData: any) => {
 		const formData = new FormData()
-		formData.append('name', categoryData.name)
-		formData.append('description', categoryData.description)
+		formData.append('name', subCategoryData.name)
+		formData.append('description', subCategoryData.description)
+		formData.append('parentCategory', subCategoryData.parentCategory)
 		if (selectedImage) {
 			formData.append('image', selectedImage)
 		}
 
-		setApiLoading(true)
-
 		try {
+			setApiLoading(true)
 			const response = await fetch(
-				`${BASE_API}/api/categories/category/${editingCategory?._id}`,
+				`${BASE_API}/api/categories/subcategory/${editingSubCategory?._id}`,
 				{
 					method: 'PUT',
 					headers: {
@@ -284,24 +310,25 @@ const Categories = () => {
 
 			if (!response.ok) {
 				const errorMessage = await response.json()
-				throw new Error(errorMessage.message || 'Failed to Update Category')
+				throw new Error(errorMessage.message || 'Failed to Update Sub-Category')
 			}
 
 			const data_res = await response.json()
 			if (data_res) {
 				Swal.fire({
 					title: 'Updated!',
-					text: 'Category updated successfully!',
+					text: 'Sub-Category updated successfully!',
 					icon: 'success',
 					confirmButtonText: 'OK',
 					timer: 1500,
 				})
-				getCategories()
+				getAllSubCategories()
 				reset()
-				setEditingCategory(null) // Reset after successful update
+				setEditingSubCategory(null)
+				toggleModal()
 			}
 		} catch (error: any) {
-			console.error('Error Updating Category', error)
+			console.error('Error Updating Sub-Category:', error)
 			Swal.fire({
 				title: 'Oops!',
 				text: error.message,
@@ -313,44 +340,32 @@ const Categories = () => {
 		}
 	}
 
-	const toggleEditModal = (category: TableRecord) => {
-		setEditingCategory(category)
-		setValue('name', category.name)
-		setValue('description', category.description || '')
-		toggleModal()
-	}
+	// Add useEffect for form reset on modal close
 	useEffect(() => {
 		if (!isOpen) {
 			reset()
 			setSelectedImage(null)
-			setEditingCategory(null)
+			setEditingSubCategory(null)
 		}
 	}, [isOpen, reset])
 
-	// Update form values when editing category changes
 	useEffect(() => {
-		if (editingCategory) {
-			setValue('name', editingCategory.name)
-			setValue('description', editingCategory.description || '')
-		} else {
-			reset({ name: '', description: '' })
-		}
-	}, [editingCategory, setValue, reset])
-
+		getAllSubCategories()
+		getParentCategory()
+	}, [])
 	if (loading) {
 		return <SimpleLoader />
 	}
-
 	return (
 		<>
-			<PageBreadcrumb title="Categories" subName="Products" />
+			<PageBreadcrumb title="Sub-Category" subName="Products" />
 			<Card>
 				<Card.Header>
 					<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center">
 						<div>
-							<h4 className="header-title">Category Management</h4>
+							<h4 className="header-title">Sub-Category Management</h4>
 							<p className="text-muted mb-0">
-								Add and Manage your all Product categories here.
+								Add and Manage your all Product sub-categories here.
 							</p>
 						</div>
 						<div className="mt-3 mt-lg-0">
@@ -359,8 +374,8 @@ const Categories = () => {
 							<Button
 								style={{ border: 'none' }}
 								variant="success"
-								onClick={toggleModal}>
-								<i className="bi bi-plus"></i> Add New Category
+								onClick={() => toggleModal()}>
+								<i className="bi bi-plus"></i> Add New Sub-Category
 							</Button>
 							{showDeleteButton && (
 								<Button
@@ -375,7 +390,7 @@ const Categories = () => {
 					<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mt-3">
 						<Form.Control
 							type="text"
-							placeholder="Search Category by name"
+							placeholder="Search Sub-Category by name"
 							value={searchTerm}
 							onChange={handleSearch}
 							className="me-2"
@@ -399,7 +414,7 @@ const Categories = () => {
 										<input
 											type="checkbox"
 											onChange={handleSelectAll}
-											checked={selectedRows.length === categoryData.length}
+											checked={selectedRows.length === subCategoryData.length}
 										/>{' '}
 									</th>
 
@@ -410,15 +425,16 @@ const Categories = () => {
 										</span>
 									</th>
 									<th>Description</th>
+									<th>Parent Category</th>
 									<th>Action</th>
 								</tr>
 							</thead>
 							<tbody>
 								{paginatedRecords.length > 0 ? (
-									(paginatedRecords || []).map((record, idx) => {
+									(paginatedRecords || []).map((record, _idx) => {
 										const isSelected = selectedRows.includes(record._id)
 										return (
-											<tr key={idx}>
+											<tr key={_idx}>
 												<td>
 													<input
 														type="checkbox"
@@ -440,6 +456,7 @@ const Categories = () => {
 												</td>
 												<td>{record.name}</td>
 												<td>{record.description}</td>
+												<td>{record.parentCategory.name}</td>
 												<td>
 													<div className="d-flex">
 														<Button
@@ -499,16 +516,20 @@ const Categories = () => {
 				{/* Modal for adding a new category */}
 				<Modal
 					show={isOpen}
-					onHide={handletoggleModal}
+					onHide={toggleModal}
 					dialogClassName="modal-dialog-centered">
 					<Modal.Header closeButton>
 						<h4 className="modal-title">
-							{editingCategory ? 'Update Category' : 'Add New Category'}
+							{editingSubCategory
+								? 'Update Sub-Category'
+								: 'Add New Sub-Category'}
 						</h4>
 					</Modal.Header>
 					<Form
 						onSubmit={handleSubmit(
-							editingCategory ? handleUpdateCategory : handleAddCategory
+							editingSubCategory
+								? handleUpdateSubCategory
+								: handleAddSubCategory
 						)}>
 						<Modal.Body>
 							<Form.Group className="mb-3">
@@ -518,10 +539,27 @@ const Categories = () => {
 									name="name"
 									containerClass="mb-3"
 									register={register}
-									placeholder="Enter Category Name here.."
+									placeholder="Enter Sub-Category Name here.."
 									errors={errors}
 									control={control}
 								/>
+							</Form.Group>
+							<Form.Group className="mb-3">
+								<Form.Label>Parent Category</Form.Label>
+								<Form.Select {...register('parentCategory')} defaultValue="">
+									<option value="" disabled>
+										Select Parent Category
+									</option>
+									{parentCategories ? (
+										parentCategories.map((category) => (
+											<option key={category._id} value={category._id}>
+												{category.name}
+											</option>
+										))
+									) : (
+										<option>No Parent Categories Available</option>
+									)}
+								</Form.Select>
 							</Form.Group>
 							<Form.Group className="mb-3">
 								<FormInput
@@ -536,20 +574,18 @@ const Categories = () => {
 								/>
 							</Form.Group>
 							<Form.Group className="mb-3">
-								<Form.Label>
-									{editingCategory ? 'Upload New Image' : 'Upload Image'}
-								</Form.Label>
+								<Form.Label>Image</Form.Label>
 								<SingleFileUploader
 									icon="ri-upload-cloud-2-line"
 									text="Drop file here or click to upload a product image."
-									onFileUpload={(file: File) => setSelectedImage(file)}
+									onFileUpload={(file: File) => setSelectedImage(file)} // Handle image selection separately
 								/>
-								{editingCategory?.image && (
-									<div className="mt-3 d-flex flex-column ">
+								{editingSubCategory?.image && (
+									<div className="mt-3 d-flex flex-column">
 										<Form.Label>Current Image</Form.Label>
 										<img
-											src={`${BASE_API}/uploads/images/${editingCategory.image}`}
-											alt="Category"
+											src={`${BASE_API}/uploads/images/${editingSubCategory.image}`}
+											alt="Sub-Category"
 											className="img-thumbnail mb-3"
 											style={{ width: '100px', height: '100px' }}
 										/>
@@ -558,17 +594,17 @@ const Categories = () => {
 							</Form.Group>
 						</Modal.Body>
 						<Modal.Footer>
-							<Button variant="light" onClick={handletoggleModal}>
+							<Button variant="light" onClick={toggleModal}>
 								Close
 							</Button>
 							<Button variant="soft-success" type="submit">
 								{apiLoading
-									? editingCategory
+									? editingSubCategory
 										? 'Updating...'
 										: 'Adding...'
-									: editingCategory
-									? 'Update Category'
-									: 'Save Category'}
+									: editingSubCategory
+									? 'Update Sub-Category'
+									: 'Save Sub-Category'}
 							</Button>
 						</Modal.Footer>
 					</Form>
@@ -577,4 +613,4 @@ const Categories = () => {
 		</>
 	)
 }
-export default Categories
+export default SubCategory

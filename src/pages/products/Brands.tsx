@@ -16,20 +16,12 @@ import { SingleFileUploader } from '@/components/FileUploader/SingleFileUploader
 import { useForm } from 'react-hook-form'
 import SimpleLoader from '../other/SimpleLoader'
 
-// basic tables
-export interface TableRecord {
+interface TableRecord {
 	_id: number
 	name: string
-	description?: string
-	isNotShowed?: string
-	productCount?: string
-	image?: string
-	cell?: string
-	activeClass?: string
-	parentCategory?: any
+	logo?: string
 }
-
-const Categories = () => {
+const Brands = () => {
 	const { isSuperUser, permissions, user } = useAuthContext()
 	const canUpdate = isSuperUser || permissions.Users?.Update
 	const canDelete = isSuperUser || permissions.Users?.Delete
@@ -44,19 +36,16 @@ const Categories = () => {
 	const [selectedImage, setSelectedImage] = useState<File | null>(null)
 	const [apiLoading, setApiLoading] = useState(false)
 	const [loading, setLoading] = useState(false)
-	const [categoryData, setCategoryData] = useState<TableRecord[]>([])
-	const [editingCategory, setEditingCategory] = useState<TableRecord | null>(
-		null
-	)
+	const [brandsData, setBrandsData] = useState<any[]>([])
+	const [editingBrand, setEditingBrand] = useState<TableRecord | null>(null)
 
 	const BASE_API = import.meta.env.VITE_BASE_API
 	const { token } = user
-
 	const {
 		handleSubmit,
 		register,
-		reset,
 		control,
+		reset,
 		setValue,
 		formState: { errors },
 	} = useForm()
@@ -66,40 +55,6 @@ const Categories = () => {
 		setShowDeleteButton(selectedRows.length > 0)
 	}, [itemsPerPage, selectedRows])
 
-	useEffect(() => {
-		getCategories()
-	}, [])
-
-	const deleteCategory = async (categoryId: string) => {
-		try {
-			const response = await fetch(
-				`${BASE_API}/api/categories/category/${categoryId}`,
-				{
-					method: 'DELETE',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			)
-
-			if (!response.ok) {
-				throw new Error('Failed to delete category')
-			}
-
-			getCategories() // Refresh the data after deletion
-			Swal.fire({
-				title: 'Deleted!',
-				text: 'Category deleted successfully.',
-				icon: 'success',
-				timer: 1500,
-			})
-		} catch (error: any) {
-			// setError(error.message)
-			Swal.fire('Oops!', 'Category deletion failed.', 'error')
-		}
-	}
-
 	const handleDeleteSelected = () => {
 		Swal.fire({
 			title: 'Are you sure?',
@@ -108,10 +63,9 @@ const Categories = () => {
 			showCancelButton: true,
 			confirmButtonColor: '#3085d6',
 			cancelButtonColor: '#d33',
-			confirmButtonText: 'Remove All!',
+			confirmButtonText: 'Yes, delete it!',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				// deleteCategory()
 				console.log('delete user success')
 			}
 		})
@@ -119,7 +73,7 @@ const Categories = () => {
 	}
 	const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.checked) {
-			setSelectedRows(categoryData.map((record) => record._id))
+			setSelectedRows(brandsData.map((record) => record._id))
 		} else {
 			setSelectedRows([])
 		}
@@ -130,10 +84,42 @@ const Categories = () => {
 			prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
 		)
 	}
+	const deleteItem = async (user_id: string) => {
+		try {
+			const response = await fetch(`${BASE_API}/api/brands/${user_id}`, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+			})
+			if (!response.ok) {
+				throw new Error('Failed to delete category')
+			}
+
+			Swal.fire({
+				title: 'Deleted!',
+				text: 'Brand deleted successfully.',
+				icon: 'success',
+				timer: 1500,
+			})
+			getAllBrands() // Refresh the data after deletion
+		} catch (error: any) {
+			console.error('Error deleting brands:', error)
+			Swal.fire({
+				title: 'Oops!',
+				text: error.message,
+				icon: 'error',
+				timer: 1500,
+			})
+		} finally {
+			setLoading(false)
+		}
+	}
 	const handleDeleteConfirmation = (userId: string) => {
 		Swal.fire({
 			title: 'Are you sure?',
-			text: 'This Items will be deleted!',
+			text: 'This Item will be deleted!',
 			icon: 'warning',
 			showCancelButton: true,
 			confirmButtonColor: '#3085d6',
@@ -141,8 +127,7 @@ const Categories = () => {
 			confirmButtonText: 'Remove!',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				deleteCategory(userId)
-				console.log('delete user success')
+				deleteItem(userId)
 			}
 		})
 	}
@@ -154,7 +139,7 @@ const Categories = () => {
 		setSortedAsc(!sortedAsc)
 	}
 
-	const filteredRecords = categoryData
+	const filteredRecords = brandsData
 		.filter((record) =>
 			record.name.toLowerCase().includes(searchTerm.toLowerCase())
 		)
@@ -171,29 +156,48 @@ const Categories = () => {
 		currentPage * itemsPerPage
 	)
 	const [isOpen, toggleModal] = useToggle() // Using toggle for modal state
-	const handletoggleModal = () => {
-		if (isOpen) {
-			reset({ name: '', description: '' })
-			setSelectedImage(null)
-			setEditingCategory(null)
+
+	const getAllBrands = async () => {
+		try {
+			setLoading(true)
+			const response = await fetch(`${BASE_API}/api/brands`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+				},
+			})
+			if (!response.ok) {
+				const errorMessage = await response.json()
+				throw new Error(errorMessage.message || 'Failed to get subcategories')
+			}
+			const data: TableRecord[] = await response.json()
+
+			console.log('data from brands ', data)
+
+			if (data) {
+				setBrandsData(data)
+			}
+		} catch (error: any) {
+			console.error('Error getting brands data :', error)
+		} finally {
+			setLoading(false)
 		}
-		toggleModal()
 	}
-	const handleAddCategory = async (categoryData: any) => {
-		// You can further handle this data and send it to an API endpoint here
-		console.log('Category Data:', categoryData)
+
+	const handleAddBrand = async (brandData: any) => {
+		console.log('Brand Data:', brandData)
 
 		const formData = new FormData()
-		formData.append('name', categoryData.name)
-		formData.append('description', categoryData.description)
+		formData.append('name', brandData.name)
+
 		if (selectedImage) {
 			formData.append('image', selectedImage)
 		}
 
-		setApiLoading(true)
-
 		try {
-			const response = await fetch(`${BASE_API}/api/categories/category`, {
+			setApiLoading(true)
+			const response = await fetch(`${BASE_API}/api/brands`, {
 				method: 'POST',
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -203,23 +207,22 @@ const Categories = () => {
 
 			if (!response.ok) {
 				const errorMessage = await response.json()
-				throw new Error(errorMessage.message || 'Failed to Add Category')
+				throw new Error(errorMessage.message || 'Failed to add new Brand')
 			}
 
 			const data_res = await response.json()
 			if (data_res) {
 				Swal.fire({
 					title: 'ADDED!',
-					text: 'Category added successfully!',
+					text: 'Brand added successfully!',
 					icon: 'success',
 					confirmButtonText: 'OK',
 					timer: 1500,
 				})
-				getCategories()
-				reset()
+				getAllBrands()
 			}
 		} catch (error: any) {
-			console.error('Error Adding Category', error)
+			console.error('Error adding brand:', error)
 			Swal.fire({
 				title: 'Oops!',
 				text: error.message,
@@ -230,49 +233,39 @@ const Categories = () => {
 			setApiLoading(false)
 		}
 	}
+	useEffect(() => {
+		getAllBrands()
+	}, [])
 
-	const getCategories = async () => {
-		try {
-			setLoading(true)
-			const response = await fetch(`${BASE_API}/api/categories/category`, {
-				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			})
-
-			if (!response.ok) {
-				const errorMessage = await response.json()
-				throw new Error(errorMessage.message || 'Failed to get categories')
-			}
-
-			const data_res: TableRecord[] = await response.json()
-			if (data_res) {
-				setCategoryData(data_res)
-			}
-			console.log(' date get from the api is ', data_res)
-		} catch (error: any) {
-			console.error('Error updating user Password:', error)
-		} finally {
-			setLoading(false)
+	const handleToggleModal = () => {
+		if (isOpen) {
+			reset({ name: '' })
+			setSelectedImage(null)
+			setEditingBrand(null)
 		}
+		toggleModal()
 	}
 
-	const handleUpdateCategory = async (categoryData: any) => {
-		console.log('Updating Category Data:', categoryData)
+	const toggleEditModal = (brand: TableRecord) => {
+		setEditingBrand(brand)
+		setValue('name', brand.name)
+		toggleModal()
+	}
+
+	// Add this function to handle brand update
+	const handleUpdateBrand = async (brandData: any) => {
+		console.log('Updating Brand Data:', brandData)
 
 		const formData = new FormData()
-		formData.append('name', categoryData.name)
-		formData.append('description', categoryData.description)
+		formData.append('name', brandData.name)
 		if (selectedImage) {
 			formData.append('image', selectedImage)
 		}
 
-		setApiLoading(true)
-
 		try {
+			setApiLoading(true)
 			const response = await fetch(
-				`${BASE_API}/api/categories/category/${editingCategory?._id}`,
+				`${BASE_API}/api/brands/${editingBrand?._id}`,
 				{
 					method: 'PUT',
 					headers: {
@@ -284,24 +277,30 @@ const Categories = () => {
 
 			if (!response.ok) {
 				const errorMessage = await response.json()
-				throw new Error(errorMessage.message || 'Failed to Update Category')
+				throw new Error(errorMessage.message || 'Failed to Update Brand')
 			}
 
 			const data_res = await response.json()
 			if (data_res) {
+				// First close the modal
+				handleToggleModal()
+
+				// Then show success message and refresh data
+				await getAllBrands()
 				Swal.fire({
 					title: 'Updated!',
-					text: 'Category updated successfully!',
+					text: 'Brand updated successfully!',
 					icon: 'success',
 					confirmButtonText: 'OK',
 					timer: 1500,
 				})
-				getCategories()
+
+				// Reset form and editing state
 				reset()
-				setEditingCategory(null) // Reset after successful update
+				setEditingBrand(null)
 			}
 		} catch (error: any) {
-			console.error('Error Updating Category', error)
+			console.error('Error Updating Brand:', error)
 			Swal.fire({
 				title: 'Oops!',
 				text: error.message,
@@ -313,29 +312,22 @@ const Categories = () => {
 		}
 	}
 
-	const toggleEditModal = (category: TableRecord) => {
-		setEditingCategory(category)
-		setValue('name', category.name)
-		setValue('description', category.description || '')
-		toggleModal()
-	}
+	// Add these useEffect hooks for form management
 	useEffect(() => {
 		if (!isOpen) {
 			reset()
 			setSelectedImage(null)
-			setEditingCategory(null)
+			setEditingBrand(null)
 		}
 	}, [isOpen, reset])
 
-	// Update form values when editing category changes
 	useEffect(() => {
-		if (editingCategory) {
-			setValue('name', editingCategory.name)
-			setValue('description', editingCategory.description || '')
+		if (editingBrand) {
+			setValue('name', editingBrand.name)
 		} else {
-			reset({ name: '', description: '' })
+			reset({ name: '' })
 		}
-	}, [editingCategory, setValue, reset])
+	}, [editingBrand, setValue, reset])
 
 	if (loading) {
 		return <SimpleLoader />
@@ -343,24 +335,23 @@ const Categories = () => {
 
 	return (
 		<>
-			<PageBreadcrumb title="Categories" subName="Products" />
+			<PageBreadcrumb title="Brands" subName="Products" />
 			<Card>
 				<Card.Header>
 					<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center">
 						<div>
-							<h4 className="header-title">Category Management</h4>
+							<h4 className="header-title">Brand Management</h4>
 							<p className="text-muted mb-0">
-								Add and Manage your all Product categories here.
+								Add and Manage your all Product brands here.
 							</p>
 						</div>
 						<div className="mt-3 mt-lg-0">
-							{' '}
-							{/* Responsive margin for small screens */}
 							<Button
 								style={{ border: 'none' }}
 								variant="success"
+								disabled={!canCreate}
 								onClick={toggleModal}>
-								<i className="bi bi-plus"></i> Add New Category
+								<i className="bi bi-plus"></i> Add New Brand
 							</Button>
 							{showDeleteButton && (
 								<Button
@@ -375,7 +366,7 @@ const Categories = () => {
 					<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mt-3">
 						<Form.Control
 							type="text"
-							placeholder="Search Category by name"
+							placeholder="Search Brand by name"
 							value={searchTerm}
 							onChange={handleSearch}
 							className="me-2"
@@ -399,17 +390,15 @@ const Categories = () => {
 										<input
 											type="checkbox"
 											onChange={handleSelectAll}
-											checked={selectedRows.length === categoryData.length}
+											checked={selectedRows.length === brandsData.length}
 										/>{' '}
 									</th>
-
 									<th>Image</th>
 									<th>
 										<span onClick={handleSort} style={{ cursor: 'pointer' }}>
 											Name {sortedAsc ? '↑' : '↓'}
 										</span>
 									</th>
-									<th>Description</th>
 									<th>Action</th>
 								</tr>
 							</thead>
@@ -426,12 +415,11 @@ const Categories = () => {
 														onChange={() => handleSelectRow(record._id)}
 													/>
 												</td>
-
 												<td className="table-user">
-													{record?.image ? (
+													{record?.logo ? (
 														<img
-															src={`${BASE_API}/uploads/images/${record.image}`}
-															alt="category"
+															src={`${BASE_API}/${record.logo}`}
+															alt="brands"
 															className="me-2 rounded-circle"
 														/>
 													) : (
@@ -439,7 +427,6 @@ const Categories = () => {
 													)}
 												</td>
 												<td>{record.name}</td>
-												<td>{record.description}</td>
 												<td>
 													<div className="d-flex">
 														<Button
@@ -464,7 +451,7 @@ const Categories = () => {
 									})
 								) : (
 									<tr>
-										<td colSpan={5} className="text-center">
+										<td colSpan={4} className="text-center">
 											No records found
 										</td>
 									</tr>
@@ -496,19 +483,19 @@ const Categories = () => {
 						</nav>
 					</div>
 				</Card.Body>
-				{/* Modal for adding a new category */}
+				{/* Modal for adding a new brand */}
 				<Modal
 					show={isOpen}
-					onHide={handletoggleModal}
+					onHide={handleToggleModal}
 					dialogClassName="modal-dialog-centered">
 					<Modal.Header closeButton>
 						<h4 className="modal-title">
-							{editingCategory ? 'Update Category' : 'Add New Category'}
+							{editingBrand ? 'Update Brand' : 'Add New Brand'}
 						</h4>
 					</Modal.Header>
 					<Form
 						onSubmit={handleSubmit(
-							editingCategory ? handleUpdateCategory : handleAddCategory
+							editingBrand ? handleUpdateBrand : handleAddBrand
 						)}>
 						<Modal.Body>
 							<Form.Group className="mb-3">
@@ -518,38 +505,26 @@ const Categories = () => {
 									name="name"
 									containerClass="mb-3"
 									register={register}
-									placeholder="Enter Category Name here.."
-									errors={errors}
-									control={control}
-								/>
-							</Form.Group>
-							<Form.Group className="mb-3">
-								<FormInput
-									label="Description"
-									type="textarea"
-									name="description"
-									containerClass="mb-3"
-									register={register}
-									placeholder="Enter Description here.."
+									placeholder="Enter Brand Name here.."
 									errors={errors}
 									control={control}
 								/>
 							</Form.Group>
 							<Form.Group className="mb-3">
 								<Form.Label>
-									{editingCategory ? 'Upload New Image' : 'Upload Image'}
+									{editingBrand ? 'Upload New Image' : 'Upload Image'}
 								</Form.Label>
 								<SingleFileUploader
 									icon="ri-upload-cloud-2-line"
-									text="Drop file here or click to upload a product image."
+									text="Drop file here or click to upload a brand image."
 									onFileUpload={(file: File) => setSelectedImage(file)}
 								/>
-								{editingCategory?.image && (
-									<div className="mt-3 d-flex flex-column ">
+								{editingBrand?.logo && (
+									<div className="mt-3 d-flex flex-column">
 										<Form.Label>Current Image</Form.Label>
 										<img
-											src={`${BASE_API}/uploads/images/${editingCategory.image}`}
-											alt="Category"
+											src={`${BASE_API}/${editingBrand.logo}`}
+											alt="Brand"
 											className="img-thumbnail mb-3"
 											style={{ width: '100px', height: '100px' }}
 										/>
@@ -558,17 +533,17 @@ const Categories = () => {
 							</Form.Group>
 						</Modal.Body>
 						<Modal.Footer>
-							<Button variant="light" onClick={handletoggleModal}>
+							<Button variant="light" onClick={handleToggleModal}>
 								Close
 							</Button>
 							<Button variant="soft-success" type="submit">
 								{apiLoading
-									? editingCategory
+									? editingBrand
 										? 'Updating...'
 										: 'Adding...'
-									: editingCategory
-									? 'Update Category'
-									: 'Save Category'}
+									: editingBrand
+									? 'Update Brand'
+									: 'Save Brand'}
 							</Button>
 						</Modal.Footer>
 					</Form>
@@ -577,4 +552,5 @@ const Categories = () => {
 		</>
 	)
 }
-export default Categories
+
+export default Brands

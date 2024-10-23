@@ -51,7 +51,7 @@ const Login = () => {
 				<VerticalForm<UserData>
 					onSubmit={handleSubmit}
 					resolver={schemaResolver}
-					defaultValues={{ email: 'hm51562@gmail.com', password: 'hassan' }}>
+					defaultValues={{ email: 'admin@admin.com', password: 'Admin123?' }}>
 					<FormInput
 						label="Email address"
 						type="text"
