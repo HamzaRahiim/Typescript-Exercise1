@@ -1,86 +1,158 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { PageBreadcrumb, PageSize, Table } from '@/components'
-import { Column } from 'react-table'
-import { employeeRecords } from '../ui/tables/data'
-import { Card, Col, Row, Spinner, Button } from 'react-bootstrap'
-import { Employee } from '../ui/tables/types'
-import { useAuthContext } from '@/common'
+import { PageBreadcrumb, FormInput } from '@/components'
+import {
+	Card,
+	Col,
+	Row,
+	Button,
+	Form,
+	Table,
+	Pagination as BootstrapPagination,
+} from 'react-bootstrap'
 import { MdEdit, MdDelete } from 'react-icons/md'
+import { useAuthContext } from '@/common'
 import Swal from 'sweetalert2'
+import SimpleLoader from './SimpleLoader'
 
-// Pagination options
+interface UserRecord {
+	id_ui: number
+	id: string
+	name: string
+	email: string
+	role: string
+	phone: string
+}
 
 const ContactList = () => {
 	const { user, permissions, isSuperUser } = useAuthContext()
-
 	const canUpdate = isSuperUser || permissions.Users?.Update
 	const canDelete = isSuperUser || permissions.Users?.Delete
 	const canCreate = isSuperUser || permissions.Users?.Create
-	// State hooks
-	const [data, setData] = useState<Employee[]>([])
-	const [loading, setLoading] = useState<boolean>(true)
-	const [error, setError] = useState<string | null>(null)
-	const [employlist, setEmploylist] = useState<any>(null)
 
-	const sizePerPageList: PageSize[] = [
-		{ text: '15', value: 15 },
-		{ text: '25', value: 25 },
-		{ text: '30', value: 30 },
-		{ text: 'All', value: employlist },
-	]
-	// Fetch user data from API
+	// States for table functionality
+	const [selectedRows, setSelectedRows] = useState<string[]>([])
+	const [searchTerm, setSearchTerm] = useState('')
+	const [currentPage, setCurrentPage] = useState(1)
+	const [itemsPerPage, setItemsPerPage] = useState(15)
+	const [sortedAsc, setSortedAsc] = useState(true)
+	const [sortField, setSortField] = useState<keyof UserRecord>('name')
+	const [showDeleteButton, setShowDeleteButton] = useState(false)
+	const [selectAll, setSelectAll] = useState(false)
+	const [loading, setLoading] = useState(false)
+	const [userData, setUserData] = useState<UserRecord[]>([])
+	const [apiLoading, setApiLoading] = useState(false)
+
+	const BASE_API = import.meta.env.VITE_BASE_API
+
+	// Effect hooks
+	useEffect(() => {
+		setCurrentPage(1)
+		setShowDeleteButton(selectedRows.length > 0)
+	}, [itemsPerPage, selectedRows])
+
+	useEffect(() => {
+		fetchUserData()
+	}, [])
+
+	// Fetch user data
 	const fetchUserData = async () => {
-		setLoading(true)
-		setError(null)
-
-		const BASE_API = import.meta.env.VITE_BASE_API
-		const yourAuthToken = user.token
-
 		try {
+			setLoading(true)
 			const response = await fetch(`${BASE_API}/api/users`, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${yourAuthToken}`,
+					Authorization: `Bearer ${user.token}`,
 				},
 			})
 
-			const fetchedData = await response.json()
 			if (!response.ok) {
 				throw new Error('Failed to fetch user data')
 			}
 
+			const fetchedData = await response.json()
 			const mappedData = fetchedData.map((item: any, index: number) => ({
 				id_ui: index + 1,
-				name: item.username || 'No Name', // Safely handle null or undefined username
-				phone: item.phone_number || 'No Phone Number', // Safely handle null or undefined phone number
-				role: item.role ? item.role.role_name : 'No Role', // Safely handle null or undefined role
-				email: item.email || 'No Email', // Safely handle null or undefined email
-				action: null,
-				id: item._id || 'No ID', // Safely handle null or undefined ID
+				id: item._id,
+				name: item.username || 'No Name',
+				email: item.email || 'No Email',
+				role: item.role ? item.role.role_name : 'No Role',
+				phone: item.phone_number || 'No Phone Number',
 			}))
 
-			setEmploylist(fetchedData.length)
-			setData(mappedData)
+			setUserData(mappedData)
 		} catch (error: any) {
-			console.log('error in fetching user ', error.message)
+			console.error('Error fetching user data:', error)
+			Swal.fire('Error!', 'Failed to fetch user data.', 'error')
 		} finally {
 			setLoading(false)
 		}
 	}
 
-	// Delete user from API
-	const deleteUser = async (userId: string) => {
-		const BASE_API = import.meta.env.VITE_BASE_API
-		const yourAuthToken = user.token
+	// Table functionality
+	const filteredRecords = userData
+		.filter((record) =>
+			Object.values(record).some((value) =>
+				value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+			)
+		)
+		.sort((a, b) => {
+			const aValue = a[sortField]
+			const bValue = b[sortField]
+			return sortedAsc
+				? aValue.toString().localeCompare(bValue.toString())
+				: bValue.toString().localeCompare(aValue.toString())
+		})
 
+	const totalPages = Math.ceil(filteredRecords.length / itemsPerPage)
+	const paginatedRecords = filteredRecords.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage
+	)
+
+	// Event handlers
+	const handlePageChange = (page: number) => setCurrentPage(page)
+
+	const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setSelectAll(event.target.checked)
+		setSelectedRows(
+			event.target.checked ? paginatedRecords.map((record) => record.id) : []
+		)
+	}
+
+	const handleSelectRow = (id: string) => {
+		setSelectedRows((prev) => {
+			const newSelection = prev.includes(id)
+				? prev.filter((rowId) => rowId !== id)
+				: [...prev, id]
+			setSelectAll(newSelection.length === paginatedRecords.length)
+			return newSelection
+		})
+	}
+
+	const handleSort = (field: keyof UserRecord) => {
+		if (field === sortField) {
+			setSortedAsc(!sortedAsc)
+		} else {
+			setSortField(field)
+			setSortedAsc(true)
+		}
+	}
+
+	const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchTerm(event.target.value)
+		setCurrentPage(1)
+	}
+
+	// Delete functionality
+	const handleDeleteUser = async (userId: string) => {
 		try {
 			const response = await fetch(`${BASE_API}/api/users/${userId}`, {
 				method: 'DELETE',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${yourAuthToken}`,
+					Authorization: `Bearer ${user.token}`,
 				},
 			})
 
@@ -88,7 +160,8 @@ const ContactList = () => {
 				throw new Error('Failed to delete user')
 			}
 
-			fetchUserData() // Refresh the data after deletion
+			await fetchUserData()
+			setSelectedRows([])
 			Swal.fire({
 				title: 'Deleted!',
 				text: 'User deleted successfully.',
@@ -96,16 +169,62 @@ const ContactList = () => {
 				timer: 1500,
 			})
 		} catch (error: any) {
-			setError(error.message)
 			Swal.fire('Error!', 'User deletion failed.', 'error')
 		}
 	}
 
-	// Handle delete confirmation modal
+	const handleMultipeDeleteUser = async () => {
+		try {
+			setApiLoading(true)
+			const response = await fetch(`${BASE_API}/api/users/bulk-delete`, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${user.token}`,
+				},
+				body: JSON.stringify({ ids: selectedRows }),
+			})
+			const data = await response.json()
+			if (data) {
+				setSelectedRows([])
+				Swal.fire({
+					title: 'Deleted!',
+					text: 'Users deleted successfully.',
+					icon: 'success',
+					timer: 1500,
+				})
+				fetchUserData()
+			}
+			if (!response.ok) {
+				throw new Error('Failed to delete user')
+			}
+		} catch (error: any) {
+			Swal.fire('Error!', 'User deletion failed.', 'error')
+		} finally {
+			setApiLoading(false)
+		}
+	}
+
+	const handleDeleteSelected = () => {
+		Swal.fire({
+			title: 'Are you sure?',
+			text: `All the ${selectedRows.length} selected users will be deleted!`,
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#3085d6',
+			cancelButtonColor: '#d33',
+			confirmButtonText: 'Yes, delete them!',
+		}).then((result) => {
+			if (result.isConfirmed) {
+				handleMultipeDeleteUser()
+			}
+		})
+	}
+
 	const handleDeleteConfirmation = (userId: string) => {
 		Swal.fire({
 			title: 'Are you sure?',
-			text: 'This User will be deleted!',
+			text: 'This user will be deleted!',
 			icon: 'warning',
 			showCancelButton: true,
 			confirmButtonColor: '#3085d6',
@@ -113,62 +232,13 @@ const ContactList = () => {
 			confirmButtonText: 'Yes, delete it!',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				deleteUser(userId)
+				handleDeleteUser(userId)
 			}
 		})
 	}
 
-	// Table columns definition
-	const columns: ReadonlyArray<Column> = [
-		{ Header: 'ID', accessor: 'id_ui', defaultCanSort: true },
-		{ Header: 'Name', accessor: 'name', defaultCanSort: true },
-		{ Header: 'Email', accessor: 'email', defaultCanSort: false },
-		{ Header: 'Role', accessor: 'role', defaultCanSort: true },
-		{ Header: 'Phone Number', accessor: 'phone', defaultCanSort: false },
-		{
-			Header: 'Action',
-			accessor: 'action',
-			Cell: ({ row }: { row: any }) => (
-				<div className="d-flex">
-					<Button variant="secondary" disabled={!canUpdate}>
-						<Link to={`/user/update/${row.original.id}`}>
-							<MdEdit />
-						</Link>
-					</Button>
-					<Button
-						variant="danger"
-						className="ms-2"
-						onClick={() => handleDeleteConfirmation(row.original.id)}
-						disabled={!canDelete}>
-						<MdDelete />
-					</Button>
-				</div>
-			),
-		},
-	]
-
-	useEffect(() => {
-		fetchUserData()
-	}, []) // Fetch data on component mount
-
 	if (loading) {
-		return (
-			<div
-				className="d-flex justify-content-center align-items-center "
-				style={{ height: '100vh' }}>
-				<Spinner animation="grow" style={{ margin: '0 5px' }} />
-				<Spinner animation="grow" style={{ margin: '0 5px' }} />
-				<Spinner animation="grow" style={{ margin: '0 5px' }} />
-			</div>
-		)
-	}
-
-	if (error) {
-		return Swal.fire({
-			title: 'Failed to retrieve user data',
-			text: error,
-			icon: 'error',
-		})
+		return <SimpleLoader />
 	}
 
 	return (
@@ -179,7 +249,6 @@ const ContactList = () => {
 					<Card>
 						<Card.Header>
 							<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center">
-								{/* Title and description */}
 								<div>
 									<h4 className="header-title">User List</h4>
 									<p className="text-muted mb-0">
@@ -187,31 +256,146 @@ const ContactList = () => {
 									</p>
 								</div>
 								<div className="mt-3 mt-lg-0">
-									{' '}
-									{/* Responsive margin for small screens */}
+									{showDeleteButton && (
+										<Button
+											variant="danger"
+											className="me-2"
+											onClick={handleDeleteSelected}>
+											Delete Selected
+										</Button>
+									)}
 									<Button
 										disabled={!canCreate}
 										style={{ border: 'none' }}
-										variant="none">
-										<Link to="/user/user-create" className="btn btn-success">
+										variant="success">
+										<Link
+											to="/user/user-create"
+											className="text-white text-decoration-none">
 											<i className="bi bi-plus"></i> Add New User
 										</Link>
 									</Button>
 								</div>
 							</div>
+							<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mt-3">
+								<Form.Control
+									type="text"
+									placeholder="Search users..."
+									value={searchTerm}
+									onChange={handleSearch}
+									className="me-2"
+								/>
+								<Form.Select
+									value={itemsPerPage}
+									onChange={(e) => setItemsPerPage(Number(e.target.value))}
+									className="w-auto mt-3 mt-lg-0">
+									<option value={15}>15 items</option>
+									<option value={30}>30 items</option>
+									<option value={40}>40 items</option>
+								</Form.Select>
+							</div>
 						</Card.Header>
-
 						<Card.Body>
-							<Table<Employee>
-								columns={columns}
-								data={data}
-								pageSize={15}
-								sizePerPageList={sizePerPageList}
-								isSortable
-								pagination
-								isSearchable
-								isSelectable
-							/>
+							<div className="table-responsive">
+								<Table className="table-striped table-centered mb-0">
+									<thead>
+										<tr>
+											<th>
+												<input
+													type="checkbox"
+													onChange={handleSelectAll}
+													checked={selectAll}
+												/>
+											</th>
+											{['Name', 'Email', 'Role', 'Phone Number', 'Action'].map(
+												(header) => (
+													<th key={header}>
+														<span
+															onClick={() =>
+																handleSort(
+																	header
+																		.toLowerCase()
+																		.replace(' ', '_') as keyof UserRecord
+																)
+															}
+															style={{ cursor: 'pointer' }}>
+															{header}{' '}
+															{sortField ===
+																header.toLowerCase().replace(' ', '_') &&
+																(sortedAsc ? '↑' : '↓')}
+														</span>
+													</th>
+												)
+											)}
+										</tr>
+									</thead>
+									<tbody>
+										{paginatedRecords.length > 0 ? (
+											paginatedRecords.map((record) => (
+												<tr key={record.id}>
+													<td>
+														<input
+															type="checkbox"
+															checked={selectedRows.includes(record.id)}
+															onChange={() => handleSelectRow(record.id)}
+														/>
+													</td>
+													<td>{record.name}</td>
+													<td>{record.email}</td>
+													<td>{record.role}</td>
+													<td>{record.phone}</td>
+													<td>
+														<div className="d-flex">
+															<Button variant="secondary" disabled={!canUpdate}>
+																<Link to={`/user/update/${record.id}`}>
+																	<MdEdit />
+																</Link>
+															</Button>
+															<Button
+																variant="danger"
+																className="ms-2"
+																onClick={() =>
+																	handleDeleteConfirmation(record.id)
+																}
+																disabled={!canDelete}>
+																<MdDelete />
+															</Button>
+														</div>
+													</td>
+												</tr>
+											))
+										) : (
+											<tr>
+												<td colSpan={7} className="text-center">
+													No users found
+												</td>
+											</tr>
+										)}
+									</tbody>
+								</Table>
+								<nav className="d-flex justify-content-end mt-3">
+									<BootstrapPagination className="pagination-rounded mb-0">
+										<BootstrapPagination.Prev
+											onClick={() =>
+												currentPage > 1 && handlePageChange(currentPage - 1)
+											}
+										/>
+										{Array.from({ length: totalPages }, (_, index) => (
+											<BootstrapPagination.Item
+												key={index + 1}
+												active={index + 1 === currentPage}
+												onClick={() => handlePageChange(index + 1)}>
+												{index + 1}
+											</BootstrapPagination.Item>
+										))}
+										<BootstrapPagination.Next
+											onClick={() =>
+												currentPage < totalPages &&
+												handlePageChange(currentPage + 1)
+											}
+										/>
+									</BootstrapPagination>
+								</nav>
+							</div>
 						</Card.Body>
 					</Card>
 				</Col>

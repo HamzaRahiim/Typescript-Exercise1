@@ -34,6 +34,13 @@ const Categories = React.lazy(() => import('../pages/products/Categories'))
 const Products = React.lazy(() => import('../pages/products/Products'))
 const SubCategory = React.lazy(() => import('../pages/products/SubCategory'))
 const Brands = React.lazy(() => import('../pages/products/Brands'))
+const CreateProduct = React.lazy(
+	() => import('../pages/products/CreateProduct')
+)
+const Variations = React.lazy(() => import('../pages/products/Variations'))
+const ProductVariations = React.lazy(
+	() => import('../pages/products/ProductVariations')
+)
 
 // // base ui
 const Accordions = React.lazy(() => import('../pages/ui/Accordions'))
@@ -235,7 +242,8 @@ const customPagesRoutes = {
 			path: '/products/add-product',
 			name: 'Add Product',
 			element: (
-				<PrivateRoute requiredPermission="Products" to_do="View">
+				<PrivateRoute requiredPermission="Products" to_do="Create">
+					{/* <CreateProduct />   */}
 					<StarterPages />
 				</PrivateRoute>
 			),
@@ -264,6 +272,15 @@ const customPagesRoutes = {
 			element: (
 				<PrivateRoute requiredPermission="Products" to_do="View">
 					<Brands />
+				</PrivateRoute>
+			),
+		},
+		{
+			path: '/products/variation',
+			name: 'Product Variation',
+			element: (
+				<PrivateRoute requiredPermission="Products" to_do="View">
+					<ProductVariations />
 				</PrivateRoute>
 			),
 		},

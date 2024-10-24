@@ -53,6 +53,38 @@ const SubCategory = () => {
 		setShowDeleteButton(selectedRows.length > 0)
 	}, [itemsPerPage, selectedRows])
 
+	const deleteSelectedSubCategory = async () => {
+		try {
+			console.log(' selected Rows ', selectedRows)
+
+			const response = await fetch(
+				`${BASE_API}/api/categories/subcategories`, // Correct endpoint
+				{
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ ids: selectedRows }), // Include the IDs in the body
+				}
+			)
+
+			if (!response.ok) {
+				throw new Error('Failed to delete category')
+			}
+
+			getAllSubCategories() // Refresh the data after deletion
+			Swal.fire({
+				title: 'Deleted!',
+				text: `All the selected ${selectedRows.length} SubCategory deleted successfully.`,
+				icon: 'success',
+				timer: 1500,
+			})
+		} catch (error: any) {
+			// setError(error.message)
+			Swal.fire('Oops!', 'SubCategory deletion failed.', 'error')
+		}
+	}
 	const handleDeleteSelected = () => {
 		Swal.fire({
 			title: 'Are you sure?',
@@ -64,11 +96,9 @@ const SubCategory = () => {
 			confirmButtonText: 'Yes, delete it!',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				// deleteUser(user_id)
-				console.log('delete user success')
+				deleteSelectedSubCategory()
 			}
 		})
-		console.log('Delete _IDs:', selectedRows)
 	}
 	const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.checked) {

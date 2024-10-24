@@ -99,6 +99,38 @@ const Categories = () => {
 			Swal.fire('Oops!', 'Category deletion failed.', 'error')
 		}
 	}
+	const deleteSelectedCategory = async () => {
+		try {
+			console.log(' selected Rows ', selectedRows)
+
+			const response = await fetch(
+				`${BASE_API}/api/categories/categories`, // Correct endpoint
+				{
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ ids: selectedRows }), // Include the IDs in the body
+				}
+			)
+
+			if (!response.ok) {
+				throw new Error('Failed to delete category')
+			}
+
+			getCategories() // Refresh the data after deletion
+			Swal.fire({
+				title: 'Deleted!',
+				text: `All the selected ${selectedRows.length} Category deleted successfully.`,
+				icon: 'success',
+				timer: 1500,
+			})
+		} catch (error: any) {
+			// setError(error.message)
+			Swal.fire('Oops!', 'Category deletion failed.', 'error')
+		}
+	}
 
 	const handleDeleteSelected = () => {
 		Swal.fire({
@@ -111,7 +143,7 @@ const Categories = () => {
 			confirmButtonText: 'Remove All!',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				// deleteCategory()
+				deleteSelectedCategory()
 				console.log('delete user success')
 			}
 		})

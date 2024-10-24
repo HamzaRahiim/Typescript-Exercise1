@@ -54,7 +54,37 @@ const Brands = () => {
 		setCurrentPage(1)
 		setShowDeleteButton(selectedRows.length > 0)
 	}, [itemsPerPage, selectedRows])
+	const deleteSelectedBrands = async () => {
+		try {
+			console.log(' selected Rows ', selectedRows)
 
+			const response = await fetch(
+				`${BASE_API}/api/brands/bulk-delete`, // Correct endpoint
+				{
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ ids: selectedRows }), // Include the IDs in the body
+				}
+			)
+
+			if (!response.ok) {
+				throw new Error('Failed to delete brands')
+			}
+
+			getAllBrands() // Refresh the data after deletion
+			Swal.fire({
+				title: 'Deleted!',
+				text: `All the selected ${selectedRows.length} Brands deleted successfully.`,
+				icon: 'success',
+				timer: 1500,
+			})
+		} catch (error: any) {
+			Swal.fire('Oops!', 'Brands deletion failed.', 'error')
+		}
+	}
 	const handleDeleteSelected = () => {
 		Swal.fire({
 			title: 'Are you sure?',
@@ -66,7 +96,7 @@ const Brands = () => {
 			confirmButtonText: 'Yes, delete it!',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				console.log('delete user success')
+				deleteSelectedBrands()
 			}
 		})
 		console.log('Delete IDs:', selectedRows)

@@ -424,8 +424,7 @@ const Starter = () => {
 					</Col>
 				</Row>
 				{/* For responsive: Show sidebar content in normal layout on small screens */}
-				<Col xs={12} className="d-block d-lg-none mt-3">
-					{/* SideBar Category */}
+				{/* <Col xs={12} className="d-block d-lg-none mt-3">
 					<>
 						<Card>
 							<Card.Header>Product Categories</Card.Header>
@@ -451,7 +450,6 @@ const Starter = () => {
 							</Card.Body>
 						</Card>
 					</>
-					{/* sideBar Product LifeCycle */}
 					<>
 						<Card>
 							<Card.Header>Publish</Card.Header>
@@ -465,7 +463,6 @@ const Starter = () => {
 									<option value="archived">Archived</option>
 									<option value="discontinued">Discontinued</option>
 								</Form.Select>
-								{/* Conditionally show this text if 'upcoming' is selected */}
 								{productStatus === 'upcoming' && (
 									<FormInput
 										label="Release Date"
@@ -481,7 +478,7 @@ const Starter = () => {
 							</Card.Body>
 						</Card>
 					</>
-				</Col>
+				</Col> */}
 				<div className="d-flex justify-content-center">
 					<Button variant="success" type="submit">
 						Add Product

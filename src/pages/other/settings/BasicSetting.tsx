@@ -132,8 +132,9 @@ const BasicSetting = () => {
 						</div>
 						<div className="info-text">
 							<p style={{ margin: 0 }}>
-								Two-Factor Authentication (2FA) adds an extra layer of security
-								to your customer login by requiring a one-time password.
+								{
+									'Two-Factor Authentication (2FA) adds an extra layer of security to your customer login by requiring a one-time password.'
+								}
 							</p>
 						</div>
 					</div>
