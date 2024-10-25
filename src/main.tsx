@@ -3,6 +3,7 @@ import App from './App'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import 'regenerator-runtime/runtime'
+import { SimpleLoader } from './pages/other/SimpleLoader'
 
 const container = document.getElementById('root')
 if (container) {
@@ -10,7 +11,7 @@ if (container) {
 	root.render(
 		// <React.StrictMode>
 		<BrowserRouter basename={''}>
-			<Suspense fallback={<div>Loading...</div>}></Suspense>
+			<Suspense fallback={<SimpleLoader />}></Suspense>
 			<App />
 		</BrowserRouter>
 		// </React.StrictMode>,

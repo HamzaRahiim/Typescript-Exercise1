@@ -117,7 +117,7 @@ const All_Roles = () => {
 	// **************** api reamaining her eto add ***********************
 	const handleMultipeDeleteRoles = async () => {
 		try {
-			const response = await fetch(`${BASE_API}/api/`, {
+			const response = await fetch(`${BASE_API}/api/users/roles/bulk-delete`, {
 				method: 'DELETE',
 				headers: {
 					'Content-Type': 'application/json',
@@ -287,6 +287,7 @@ const All_Roles = () => {
 						<select
 							className="form-select w-auto mt-3 mt-lg-0"
 							value={itemsPerPage}
+							style={{ zIndex: 1 }}
 							onChange={(e) => setItemsPerPage(Number(e.target.value))}>
 							<option value={15}>15 items</option>
 							<option value={25}>25 items</option>

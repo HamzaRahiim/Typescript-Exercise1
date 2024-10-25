@@ -16,7 +16,7 @@ import { useAuthContext } from '@/common'
 import Swal from 'sweetalert2'
 import { useForm } from 'react-hook-form'
 import PasswordChecklist from 'react-password-checklist'
-import SimpleLoader from '../SimpleLoader'
+import { SimpleLoader } from '../SimpleLoader'
 // Define types for user info and form data
 interface UserInfo {
 	username: string
@@ -33,7 +33,7 @@ interface FormData {
 
 const ProfilePages = () => {
 	const BASE_API = import.meta.env.VITE_BASE_API
-	const { user } = useAuthContext()
+	const { user, updateUserName } = useAuthContext()
 	const { token } = user
 	// React Hook Form setup
 	const methods = useForm()
@@ -61,44 +61,44 @@ const ProfilePages = () => {
 	})
 
 	// Fetch user data from API
-	useEffect(() => {
-		const fetchUserInfo = async () => {
-			try {
-				setLoading(true)
+	const fetchUserInfo = async () => {
+		try {
+			setLoading(true)
 
-				const response = await fetch(`${BASE_API}/api/users/me`, {
-					method: 'GET',
-					headers: {
-						Authorization: `Bearer ${token}`,
-						'Content-Type': 'application/json',
-					},
-				})
+			const response = await fetch(`${BASE_API}/api/users/me`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+				},
+			})
 
-				// Handle unsuccessful response
-				if (!response.ok) {
-					throw new Error('Failed to fetch user info')
-				}
-
-				const data = await response.json()
-				if (data) {
-					setUserInfo({
-						username: data.username || 'N/A',
-						email: data.email || 'N/A',
-						phone_number: data.phone_number || 'N/A',
-						role: data.role.role_name || 'N/A',
-					})
-					setFormData({
-						username: data.username || '',
-						email: data.email || '',
-						phone_number: data.phone_number || '',
-					})
-				}
-			} catch (error) {
-				console.error('Error fetching user info:', error)
-			} finally {
-				setLoading(false)
+			// Handle unsuccessful response
+			if (!response.ok) {
+				throw new Error('Failed to fetch user info')
 			}
+
+			const data = await response.json()
+			if (data) {
+				setUserInfo({
+					username: data.username || 'N/A',
+					email: data.email || 'N/A',
+					phone_number: data.phone_number || 'N/A',
+					role: data.role.role_name || 'N/A',
+				})
+				setFormData({
+					username: data.username || '',
+					email: data.email || '',
+					phone_number: data.phone_number || '',
+				})
+			}
+		} catch (error) {
+			console.error('Error fetching user info:', error)
+		} finally {
+			setLoading(false)
 		}
+	}
+	useEffect(() => {
 		fetchUserInfo()
 	}, [token])
 
@@ -140,6 +140,8 @@ const ProfilePages = () => {
 					timer: 1500,
 				})
 			}
+			fetchUserInfo()
+			updateUserName(formData.username)
 			console.log('User Info updated:', data)
 		} catch (error) {
 			console.error('Error updating user info:', error)
@@ -334,14 +336,14 @@ const ProfilePages = () => {
 														<FormInput
 															name="phone_number"
 															label="Phone Number"
-															type="text"
+															type="number"
 															containerClass="mb-3"
 															value={formData.phone_number}
 															onChange={handleInputChange}
 														/>
 													</Row>
 													<Button
-														variant="primary"
+														variant="success"
 														type="submit"
 														disabled={apiLoadinng}>
 														{apiLoadinng ? 'Updating...' : 'Save Changes'}

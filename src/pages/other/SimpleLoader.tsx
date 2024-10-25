@@ -1,6 +1,6 @@
 import { Spinner } from 'react-bootstrap'
 
-const SimpleLoader = () => {
+export const SimpleLoader = () => {
 	return (
 		<>
 			<div
@@ -13,4 +13,13 @@ const SimpleLoader = () => {
 		</>
 	)
 }
-export default SimpleLoader
+
+export const SmallLoader = () => {
+	return (
+		<div className="d-flex justify-content-center align-items-center">
+			<Spinner animation="grow" size="sm" style={{ margin: '0 5px' }} />
+			<Spinner animation="grow" size="sm" style={{ margin: '0 5px' }} />
+			<Spinner animation="grow" size="sm" style={{ margin: '0 5px' }} />
+		</div>
+	)
+}

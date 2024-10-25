@@ -5,6 +5,7 @@ import AllRoutes from './routes/Routes'
 import './assets/scss/app.scss'
 import './assets/scss/icons.scss'
 import { Suspense } from 'react'
+import { SimpleLoader } from './pages/other/SimpleLoader'
 
 configureFakeBackend()
 
@@ -12,7 +13,7 @@ function App() {
 	return (
 		<ThemeProvider>
 			<AuthProvider>
-				<Suspense fallback={<div>Loading...</div>}></Suspense>
+				<Suspense fallback={<SimpleLoader />}></Suspense>
 				<AllRoutes />
 			</AuthProvider>
 		</ThemeProvider>

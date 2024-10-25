@@ -14,7 +14,7 @@ import Swal from 'sweetalert2'
 import { useToggle } from '@/hooks'
 import { SingleFileUploader } from '@/components/FileUploader/SingleFileUploader'
 import { useForm } from 'react-hook-form'
-import SimpleLoader from '../other/SimpleLoader'
+import { SimpleLoader } from '../other/SimpleLoader'
 
 // basic tables
 export interface TableRecord {
@@ -31,9 +31,9 @@ export interface TableRecord {
 
 const Categories = () => {
 	const { isSuperUser, permissions, user } = useAuthContext()
-	const canUpdate = isSuperUser || permissions.Users?.Update
-	const canDelete = isSuperUser || permissions.Users?.Delete
-	const canCreate = isSuperUser || permissions.Users?.Create
+	const canUpdate = isSuperUser || permissions.Products?.Update
+	const canDelete = isSuperUser || permissions.Products?.Delete
+	const canCreate = isSuperUser || permissions.Products?.Create
 
 	const [selectedRows, setSelectedRows] = useState<number[]>([])
 	const [searchTerm, setSearchTerm] = useState('')
@@ -390,6 +390,7 @@ const Categories = () => {
 							{/* Responsive margin for small screens */}
 							<Button
 								style={{ border: 'none' }}
+								disabled={!canCreate}
 								variant="success"
 								onClick={toggleModal}>
 								<i className="bi bi-plus"></i> Add New Category
@@ -414,6 +415,7 @@ const Categories = () => {
 						/>
 						<Form.Select
 							value={itemsPerPage}
+							style={{ zIndex: 1 }}
 							onChange={(e) => setItemsPerPage(Number(e.target.value))}
 							className="w-auto mt-3 mt-lg-0">
 							<option value={15}>15 items</option>
@@ -593,7 +595,10 @@ const Categories = () => {
 							<Button variant="light" onClick={handletoggleModal}>
 								Close
 							</Button>
-							<Button variant="soft-success" type="submit">
+							<Button
+								variant="soft-success"
+								type="submit"
+								disabled={editingCategory ? !canUpdate : !canCreate}>
 								{apiLoading
 									? editingCategory
 										? 'Updating...'

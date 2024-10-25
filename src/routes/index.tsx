@@ -243,8 +243,8 @@ const customPagesRoutes = {
 			name: 'Add Product',
 			element: (
 				<PrivateRoute requiredPermission="Products" to_do="Create">
-					{/* <CreateProduct />   */}
-					<StarterPages />
+					<CreateProduct />
+					{/* <StarterPages /> */}
 				</PrivateRoute>
 			),
 		},

@@ -2,20 +2,24 @@ import { useAuthContext } from '@/common'
 import { FormInput, PageBreadcrumb } from '@/components'
 import { useEffect, useState } from 'react'
 import { Button, Card, Col, Form, Row, Spinner, Table } from 'react-bootstrap'
-import { useParams } from 'react-router-dom'
-import { Permissions } from '@/types'
+import { Link, useParams } from 'react-router-dom'
+import { Permission } from '@/types'
 import Swal from 'sweetalert2'
+import { SmallLoader } from './SimpleLoader'
 
 const RoleUpdate = () => {
 	const { id } = useParams() // Get the user id from the URL params
-	const { user } = useAuthContext() // Get the authenticated user's token
+	const { user, isSuperUser, permissions } = useAuthContext() // Get the authenticated user's token
 	const { token } = user
 	const BASE_API = import.meta.env.VITE_BASE_API
 	const [role, setRole] = useState('')
 
 	const [loading, setLoading] = useState<Boolean>(true)
+	const [apiLoading, setApiLoading] = useState(false)
+	const canUpdate = isSuperUser || permissions.Users?.Update
+	const canView = isSuperUser || permissions.Users?.View
 
-	const defaultPermissions: Permissions = {
+	const defaultPermission: Permission = {
 		Products: { Create: false, View: false, Update: false, Delete: false },
 		Category: { Create: false, View: false, Update: false, Delete: false },
 		Orders: { Create: false, View: false, Update: false, Delete: false },
@@ -27,23 +31,22 @@ const RoleUpdate = () => {
 		Customers: { Create: false, View: false, Update: false, Delete: false },
 	}
 
-	const [permissions, setPermissions] =
-		useState<Permissions>(defaultPermissions)
+	const [permission, setPermission] = useState<Permission>(defaultPermission)
 
 	const resetForm = () => {
-		setPermissions(defaultPermissions) // Reset checkboxes to default
+		setPermission(defaultPermission) // Reset checkboxes to default
 		setRole('') // Reset the role field
 	}
 
 	const handlePermissionChange = (
-		page: keyof Permissions,
+		page: keyof Permission,
 		permissionType: 'Create' | 'View' | 'Update' | 'Delete'
 	) => {
-		setPermissions((prevPermissions) => ({
-			...prevPermissions,
+		setPermission((prevPermission) => ({
+			...prevPermission,
 			[page]: {
-				...prevPermissions[page],
-				[permissionType]: !prevPermissions[page][permissionType],
+				...prevPermission[page],
+				[permissionType]: !prevPermission[page][permissionType],
 			},
 		}))
 	}
@@ -67,7 +70,7 @@ const RoleUpdate = () => {
 					if (userRole) {
 						console.log('User Role:', userRole)
 						setRole(userRole.role_name) // Set the role in state
-						setPermissions(userRole.permissions) // Set the permissions in state
+						setPermission(userRole.permissions) // Set the permission in state
 					} else {
 						console.log('No role found for the provided user ID.')
 					}
@@ -97,10 +100,10 @@ const RoleUpdate = () => {
 		)
 	}
 	const handleSubmit = async () => {
-		setLoading(true)
+		setApiLoading(true)
 		const roleData = {
 			role_name: role,
-			permissions,
+			permissions: permission,
 		}
 		console.log(roleData)
 
@@ -128,7 +131,7 @@ const RoleUpdate = () => {
 				await response.json()
 				Swal.fire({
 					title: 'Update Successfully!',
-					text: 'Role with permissions has been updated successfully!',
+					text: 'Role with permission has been updated successfully!',
 					icon: 'success',
 					timer: 1500,
 				})
@@ -144,7 +147,7 @@ const RoleUpdate = () => {
 				timer: 1500,
 			})
 		} finally {
-			setLoading(false)
+			setApiLoading(false)
 		}
 
 		if (loading) {
@@ -164,7 +167,23 @@ const RoleUpdate = () => {
 			<PageBreadcrumb title="Update Role" subName="User" />
 			<Card>
 				<Card.Header>
-					<h4 className="header-title">{`Role & Permission`}</h4>
+					<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center">
+						<div>
+							<h4 className="header-title">{`Role & Permission`}</h4>
+						</div>
+						<div className="mt-3 mt-lg-0">
+							{' '}
+							{/* Responsive margin for small screens */}
+							<Button
+								style={{ border: 'none' }}
+								variant="none"
+								disabled={!canView}>
+								<Link to="/user/role-all" className="btn btn-danger">
+									See All Roles
+								</Link>
+							</Button>
+						</div>
+					</div>
 				</Card.Header>
 				<Card.Body>
 					<Row>
@@ -183,7 +202,7 @@ const RoleUpdate = () => {
 						</Col>
 					</Row>
 
-					{/* Table for Permissions */}
+					{/* Table for Permission */}
 					<div className="table-responsive-sm">
 						<Table className="table-hover table-centered mb-0">
 							<thead>
@@ -196,7 +215,7 @@ const RoleUpdate = () => {
 								</tr>
 							</thead>
 							<tbody>
-								{Object.keys(permissions).map((page) => (
+								{Object.keys(permission).map((page) => (
 									<tr key={page}>
 										<td>{page}</td>
 
@@ -204,10 +223,10 @@ const RoleUpdate = () => {
 											<Form.Check
 												type="checkbox"
 												style={{ margin: '0 auto', display: 'block' }} // Center checkbox
-												checked={permissions[page as keyof Permissions].View}
+												checked={permission[page as keyof Permission].View}
 												onChange={() =>
 													handlePermissionChange(
-														page as keyof Permissions,
+														page as keyof Permission,
 														'View'
 													)
 												}
@@ -217,10 +236,10 @@ const RoleUpdate = () => {
 											<Form.Check
 												type="checkbox"
 												style={{ margin: '0 auto', display: 'block' }} // Center checkbox
-												checked={permissions[page as keyof Permissions].Create}
+												checked={permission[page as keyof Permission].Create}
 												onChange={() =>
 													handlePermissionChange(
-														page as keyof Permissions,
+														page as keyof Permission,
 														'Create'
 													)
 												}
@@ -230,10 +249,10 @@ const RoleUpdate = () => {
 											<Form.Check
 												type="checkbox"
 												style={{ margin: '0 auto', display: 'block' }} // Center checkbox
-												checked={permissions[page as keyof Permissions].Update}
+												checked={permission[page as keyof Permission].Update}
 												onChange={() =>
 													handlePermissionChange(
-														page as keyof Permissions,
+														page as keyof Permission,
 														'Update'
 													)
 												}
@@ -243,10 +262,10 @@ const RoleUpdate = () => {
 											<Form.Check
 												type="checkbox"
 												style={{ margin: '0 auto', display: 'block' }} // Center checkbox
-												checked={permissions[page as keyof Permissions].Delete}
+												checked={permission[page as keyof Permission].Delete}
 												onChange={() =>
 													handlePermissionChange(
-														page as keyof Permissions,
+														page as keyof Permission,
 														'Delete'
 													)
 												}
@@ -258,13 +277,13 @@ const RoleUpdate = () => {
 						</Table>
 					</div>
 
-					{/* Button to Submit Role & Permissions */}
+					{/* Button to Submit Role & Permission */}
 					<Button
 						className="mt-3"
 						variant="success"
 						onClick={handleSubmit}
-						disabled={loading}>
-						{`Save Role & Permission`}
+						disabled={apiLoading || !canUpdate}>
+						{apiLoading ? <SmallLoader /> : `Save Role & Permission`}
 					</Button>
 				</Card.Body>
 			</Card>

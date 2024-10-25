@@ -13,7 +13,7 @@ import { useAuthContext } from '@/common'
 import Swal from 'sweetalert2'
 import { useToggle } from '@/hooks'
 import { useForm } from 'react-hook-form'
-import SimpleLoader from '../other/SimpleLoader'
+import { SimpleLoader } from '../other/SimpleLoader'
 
 interface VariantRecord {
 	_id: string
@@ -28,9 +28,9 @@ interface ProductVariant {
 
 const Variations = () => {
 	const { isSuperUser, permissions, user } = useAuthContext()
-	const canUpdate = isSuperUser || permissions.Users?.Update
-	const canDelete = isSuperUser || permissions.Users?.Delete
-	const canCreate = isSuperUser || permissions.Users?.Create
+	const canUpdate = isSuperUser || permissions.Products?.Update
+	const canDelete = isSuperUser || permissions.Products?.Delete
+	const canCreate = isSuperUser || permissions.Products?.Create
 
 	// ************************** states **********************************
 	const [selectedRows, setSelectedRows] = useState<string[]>([])
@@ -491,7 +491,10 @@ const Variations = () => {
 							<Button variant="light" onClick={handleToggleModal}>
 								Close
 							</Button>
-							<Button variant="soft-success" type="submit">
+							<Button
+								variant="soft-success"
+								type="submit"
+								disabled={editingVariant ? !canUpdate : !canCreate}>
 								{apiLoading
 									? editingVariant
 										? 'Updating...'

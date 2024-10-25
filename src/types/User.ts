@@ -13,9 +13,8 @@ export type PagePermissions = {
 	Delete: boolean
 }
 
-export type Permissions = {
+export type Permission = {
 	Products: PagePermissions
-	Category: PagePermissions
 	Shippings: PagePermissions
 	Orders: PagePermissions
 	Users: PagePermissions

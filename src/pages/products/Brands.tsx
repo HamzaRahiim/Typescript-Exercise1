@@ -14,7 +14,7 @@ import Swal from 'sweetalert2'
 import { useToggle } from '@/hooks'
 import { SingleFileUploader } from '@/components/FileUploader/SingleFileUploader'
 import { useForm } from 'react-hook-form'
-import SimpleLoader from '../other/SimpleLoader'
+import { SimpleLoader } from '../other/SimpleLoader'
 
 interface TableRecord {
 	_id: number
@@ -23,9 +23,9 @@ interface TableRecord {
 }
 const Brands = () => {
 	const { isSuperUser, permissions, user } = useAuthContext()
-	const canUpdate = isSuperUser || permissions.Users?.Update
-	const canDelete = isSuperUser || permissions.Users?.Delete
-	const canCreate = isSuperUser || permissions.Users?.Create
+	const canUpdate = isSuperUser || permissions.Products?.Update
+	const canDelete = isSuperUser || permissions.Products?.Delete
+	const canCreate = isSuperUser || permissions.Products?.Create
 
 	const [selectedRows, setSelectedRows] = useState<number[]>([])
 	const [searchTerm, setSearchTerm] = useState('')
@@ -403,6 +403,7 @@ const Brands = () => {
 						/>
 						<Form.Select
 							value={itemsPerPage}
+							style={{ zIndex: 1 }}
 							onChange={(e) => setItemsPerPage(Number(e.target.value))}
 							className="w-auto mt-3 mt-lg-0">
 							<option value={15}>15 items</option>
@@ -566,7 +567,10 @@ const Brands = () => {
 							<Button variant="light" onClick={handleToggleModal}>
 								Close
 							</Button>
-							<Button variant="soft-success" type="submit">
+							<Button
+								variant="soft-success"
+								type="submit"
+								disabled={editingBrand ? !canUpdate : !canCreate}>
 								{apiLoading
 									? editingBrand
 										? 'Updating...'

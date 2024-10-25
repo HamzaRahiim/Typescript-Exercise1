@@ -14,14 +14,15 @@ import Swal from 'sweetalert2'
 import { useToggle } from '@/hooks'
 import { SingleFileUploader } from '@/components/FileUploader/SingleFileUploader'
 import { set, useForm } from 'react-hook-form'
-import SimpleLoader from '../other/SimpleLoader'
+import { SimpleLoader } from '../other/SimpleLoader'
 import { TableRecord } from './Categories'
 
 const SubCategory = () => {
 	const { isSuperUser, permissions, user } = useAuthContext()
-	const canUpdate = isSuperUser || permissions.Users?.Update
-	const canDelete = isSuperUser || permissions.Users?.Delete
-	const canCreate = isSuperUser || permissions.Users?.Create
+	const canUpdate = isSuperUser || permissions.Products?.Update
+	const canDelete = isSuperUser || permissions.Products?.Delete
+	const canCreate = isSuperUser || permissions.Products?.Create
+	const canView = isSuperUser || permissions.Products?.View
 
 	const [selectedRows, setSelectedRows] = useState<number[]>([])
 	const [searchTerm, setSearchTerm] = useState('')
@@ -402,6 +403,7 @@ const SubCategory = () => {
 							{' '}
 							{/* Responsive margin for small screens */}
 							<Button
+								disabled={!canCreate}
 								style={{ border: 'none' }}
 								variant="success"
 								onClick={() => toggleModal()}>
@@ -427,6 +429,7 @@ const SubCategory = () => {
 						/>
 						<Form.Select
 							value={itemsPerPage}
+							style={{ zIndex: 1 }}
 							onChange={(e) => setItemsPerPage(Number(e.target.value))}
 							className="w-auto mt-3 mt-lg-0">
 							<option value={15}>15 items</option>
@@ -627,7 +630,10 @@ const SubCategory = () => {
 							<Button variant="light" onClick={toggleModal}>
 								Close
 							</Button>
-							<Button variant="soft-success" type="submit">
+							<Button
+								variant="soft-success"
+								type="submit"
+								disabled={editingSubCategory ? !canUpdate : !canCreate}>
 								{apiLoading
 									? editingSubCategory
 										? 'Updating...'

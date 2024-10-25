@@ -13,7 +13,7 @@ import {
 import { MdEdit, MdDelete } from 'react-icons/md'
 import { useAuthContext } from '@/common'
 import Swal from 'sweetalert2'
-import SimpleLoader from './SimpleLoader'
+import { SimpleLoader } from './SimpleLoader'
 
 interface UserRecord {
 	id_ui: number
@@ -286,6 +286,7 @@ const ContactList = () => {
 								/>
 								<Form.Select
 									value={itemsPerPage}
+									style={{ zIndex: 1 }}
 									onChange={(e) => setItemsPerPage(Number(e.target.value))}
 									className="w-auto mt-3 mt-lg-0">
 									<option value={15}>15 items</option>

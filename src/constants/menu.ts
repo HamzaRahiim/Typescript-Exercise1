@@ -40,12 +40,6 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		isTitle: false,
 		icon: MdProductionQuantityLimits,
 		children: [
-			// {
-			// 	key: 'View',
-			// 	label: 'All Products',
-			// 	url: '/products/all-product',
-			// 	parentKey: 'products',
-			// },
 			{
 				key: 'View',
 				label: 'Items Management',
@@ -76,12 +70,12 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				url: '/products/variation',
 				parentKey: 'products',
 			},
-			{
-				key: 'View',
-				label: 'Home Features',
-				url: '/products/home-features',
-				parentKey: 'products',
-			},
+			// {
+			// 	key: 'View',
+			// 	label: 'Home Features',
+			// 	url: '/products/home-features',
+			// 	parentKey: 'products',
+			// },
 			// {
 			// 	key: 'pages-profile',
 			// 	label: 'Profile',
@@ -138,20 +132,20 @@ const MENU_ITEMS: MenuItemTypes[] = [
 			// },
 		],
 	},
-	{
-		key: 'category',
-		label: 'Category',
-		isTitle: false,
-		icon: BiCategoryAlt,
-		children: [
-			{
-				key: 'icons-remix',
-				label: 'Sub-Category',
-				url: '/',
-				parentKey: 'category',
-			},
-		],
-	},
+	// {
+	// 	key: 'category',
+	// 	label: 'Category',
+	// 	isTitle: false,
+	// 	icon: BiCategoryAlt,
+	// 	children: [
+	// 		{
+	// 			key: 'icons-remix',
+	// 			label: 'Sub-Category',
+	// 			url: '/',
+	// 			parentKey: 'category',
+	// 		},
+	// 	],
+	// },
 	{
 		key: 'shippings',
 		label: 'Shippings',

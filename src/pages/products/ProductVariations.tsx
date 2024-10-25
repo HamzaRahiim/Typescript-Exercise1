@@ -13,16 +13,9 @@ import { useAuthContext } from '@/common'
 import Swal from 'sweetalert2'
 import { useToggle } from '@/hooks'
 import { useForm } from 'react-hook-form'
-import SimpleLoader from '../other/SimpleLoader'
+import { SimpleLoader } from '../other/SimpleLoader'
 import Variations from './Variations'
-interface ProductVariant {
-	_id: string
-	variantName: {
-		_id: string
-		name: string // for display in dropdown
-	}
-	value: string
-}
+import { ProductVariant } from '@/types'
 
 interface VariantName {
 	_id: string
@@ -31,9 +24,9 @@ interface VariantName {
 
 const ProductVarations = () => {
 	const { isSuperUser, permissions, user } = useAuthContext()
-	const canUpdate = isSuperUser || permissions.ProductVariants?.Update
-	const canDelete = isSuperUser || permissions.ProductVariants?.Delete
-	const canCreate = isSuperUser || permissions.ProductVariants?.Create
+	const canUpdate = isSuperUser || permissions.Products?.Update
+	const canDelete = isSuperUser || permissions.Products?.Delete
+	const canCreate = isSuperUser || permissions.Products?.Create
 
 	// ************************** states **********************************
 	const [selectedRows, setSelectedRows] = useState<string[]>([])
@@ -369,6 +362,10 @@ const ProductVarations = () => {
 		}
 	}
 
+	if (loading) {
+		return <SimpleLoader />
+	}
+
 	return (
 		<>
 			<PageBreadcrumb title="Product Variants" subName="Products" />
@@ -415,6 +412,7 @@ const ProductVarations = () => {
 						/>
 						<Form.Select
 							value={itemsPerPage}
+							style={{ zIndex: 1 }}
 							onChange={(e) => setItemsPerPage(Number(e.target.value))}
 							className="w-auto mt-3 mt-lg-0">
 							<option value={15}>15 items</option>
@@ -566,8 +564,17 @@ const ProductVarations = () => {
 							<Button variant="light" onClick={handleToggleModal}>
 								Close
 							</Button>
-							<Button variant="soft-success" type="submit">
-								{apiLoading ? 'Saving...' : 'Save'}
+							<Button
+								variant="soft-success"
+								type="submit"
+								disabled={editingVariant ? !canUpdate : !canCreate}>
+								{apiLoading
+									? editingVariant
+										? 'Updating...'
+										: 'Adding...'
+									: editingVariant
+									? 'Update Variant'
+									: 'Save Variant'}
 							</Button>
 						</Modal.Footer>
 					</Form>

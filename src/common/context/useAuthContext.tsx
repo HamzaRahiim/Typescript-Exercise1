@@ -34,6 +34,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		[setUser]
 	)
 
+	const updateUserName = useCallback(
+		(newUsername: string) => {
+			if (user) {
+				const updatedUser = { ...user, username: newUsername }
+				localStorage.setItem(authSessionKey, JSON.stringify(updatedUser))
+				setUser(updatedUser)
+			}
+		},
+		[user, setUser]
+	)
+
 	const removeSession = useCallback(() => {
 		localStorage.removeItem(authSessionKey)
 		setUser(undefined)
@@ -48,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				role: user?.role,
 				permissions: user?.permissions,
 				saveSession,
+				updateUserName,
 				removeSession,
 			}}>
 			{children}

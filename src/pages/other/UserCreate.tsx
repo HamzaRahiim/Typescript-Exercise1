@@ -7,6 +7,7 @@ import * as yup from 'yup'
 import { useAuthContext } from '@/common'
 import Swal from 'sweetalert2'
 import { Link } from 'react-router-dom'
+import { SmallLoader } from './SimpleLoader'
 
 const schemaResolver = yupResolver(
 	yup.object().shape({
@@ -15,8 +16,18 @@ const schemaResolver = yupResolver(
 			.string()
 			.email('Please enter a valid email')
 			.required('Please enter Email'),
-		password: yup.string().required('Please enter Password'),
-		phone_number: yup.string().required('Please enter Phone Number'),
+		password: yup
+			.string()
+			.min(8, 'Password must be at least 8 characters')
+			.required('Please enter Password'),
+		phone_number: yup
+			.string()
+			.matches(
+				/^03\d{2}\d{7}$/,
+				'Please enter a valid mobile number e.g 03xx xxxxxxx'
+			)
+			.required('Please enter Phone Number'),
+		role_name: yup.string().required('Please select a Role'),
 	})
 )
 
@@ -25,6 +36,8 @@ const UserCreate = () => {
 	const { permissions, isSuperUser } = useAuthContext()
 
 	const canCreate = isSuperUser || permissions.Users?.Create
+	const canView = isSuperUser || permissions.Users?.View
+
 	const {
 		handleSubmit,
 		register,
@@ -34,6 +47,7 @@ const UserCreate = () => {
 	} = methods
 
 	const [loading, setLoading] = useState(false)
+	const [apiloading, setApiLoading] = useState(false)
 	const [roles, setRoles] = useState<{ _id: string; role_name: string }[]>([]) // Store
 	const { user } = useAuthContext()
 
@@ -80,7 +94,7 @@ const UserCreate = () => {
 	}, [])
 
 	const handleFormSubmit = async (data: any) => {
-		setLoading(true)
+		setApiLoading(true)
 		try {
 			// Find the selected role's _id
 			const selectedRole = roles.find(
@@ -124,13 +138,13 @@ const UserCreate = () => {
 		} catch (error: any) {
 			console.error('Error submitting User form:', error)
 			Swal.fire({
-				title: 'User Creation Failed!',
+				title: 'Oops!',
 				text: error.message,
 				icon: 'error',
 				timer: 1500,
 			})
 		} finally {
-			setLoading(false)
+			setApiLoading(false)
 		}
 	}
 
@@ -141,15 +155,18 @@ const UserCreate = () => {
 				<Card.Header>
 					<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center">
 						<div>
-							<h4 className="header-title">Account</h4>
+							<h4 className="header-title">User Account</h4>
 							<p className="text-muted mb-0">
-								Fill in the information below to add a new account
+								Fill in the information below to add a new user account
 							</p>
 						</div>
 						<div className="mt-3 mt-lg-0">
 							{' '}
 							{/* Responsive margin for small screens */}
-							<Button style={{ border: 'none' }} variant="none">
+							<Button
+								style={{ border: 'none' }}
+								variant="none"
+								disabled={!canView}>
 								<Link to="/user/user-all" className="btn btn-danger">
 									See All Users
 								</Link>
@@ -191,7 +208,7 @@ const UserCreate = () => {
 							<Col lg={6}>
 								<FormInput
 									label="Phone Number"
-									type="text"
+									type="number"
 									name="phone_number"
 									placeholder="Enter Your Phone Number"
 									containerClass="mb-3"
@@ -242,8 +259,8 @@ const UserCreate = () => {
 						<Button
 							type="submit"
 							variant="success"
-							disabled={loading || !canCreate}>
-							Register User
+							disabled={apiloading || !canCreate}>
+							{apiloading ? <SmallLoader /> : 'Register User'}
 						</Button>
 					</Card.Body>
 				</Form>
