@@ -394,13 +394,35 @@ const Brands = () => {
 						</div>
 					</div>
 					<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mt-3">
-						<Form.Control
-							type="text"
-							placeholder="Search Brand by name"
-							value={searchTerm}
-							onChange={handleSearch}
-							className="me-2"
-						/>
+						<div className="app-search d-none d-lg-block">
+							<form>
+								<div
+									className="input-group"
+									style={{
+										backgroundColor: 'rgba(255, 255, 255, 0.8)',
+										borderRadius: '10px',
+										border: '1px solid rgba(0, 0, 0, 0.1)',
+									}}>
+									<input
+										type="search"
+										className="form-control"
+										placeholder="Search Brands here..."
+										value={searchTerm}
+										onChange={handleSearch}
+										style={{
+											backgroundColor: 'transparent',
+											border: 'none',
+											paddingLeft: '10px',
+											color: '#333',
+										}}
+									/>
+									<span
+										className="ri-search-line search-icon text-muted"
+										style={{ marginRight: '10px', color: '#666' }}
+									/>
+								</div>
+							</form>
+						</div>
 						<Form.Select
 							value={itemsPerPage}
 							style={{ zIndex: 1 }}
@@ -541,10 +563,29 @@ const Brands = () => {
 									control={control}
 								/>
 							</Form.Group>
-							<Form.Group className="mb-3">
+							<Form.Group className="mb-2">
 								<Form.Label>
 									{editingBrand ? 'Upload New Image' : 'Upload Image'}
 								</Form.Label>
+								<div className="mb-2">
+									<p
+										style={{ fontSize: '0.8rem' }}
+										className="text-danger mb-0">
+										{'File Size: Upload images up to 5 MB.'}
+									</p>
+									<p
+										style={{ fontSize: '0.8rem' }}
+										className="text-danger mb-0">
+										{
+											'Supported Formats: JPEG (.jpg, .jpeg), PNG (.png), GIF(.gif), WebP (.webp), and SVG (.svg).'
+										}
+									</p>
+									<p
+										style={{ fontSize: '0.8rem' }}
+										className="text-danger mb-0">
+										{'Upload Limit: Only 1 image can be uploaded.'}
+									</p>
+								</div>
 								<SingleFileUploader
 									icon="ri-upload-cloud-2-line"
 									text="Drop file here or click to upload a brand image."

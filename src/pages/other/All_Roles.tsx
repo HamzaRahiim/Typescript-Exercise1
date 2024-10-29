@@ -277,13 +277,35 @@ const All_Roles = () => {
 						</div>
 					</div>
 					<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mt-3">
-						<input
-							type="text"
-							className="form-control me-2"
-							placeholder="Search roles by name"
-							value={searchTerm}
-							onChange={handleSearch}
-						/>
+						<div className="app-search d-none d-lg-block">
+							<form>
+								<div
+									className="input-group"
+									style={{
+										backgroundColor: 'rgba(255, 255, 255, 0.8)',
+										borderRadius: '10px',
+										border: '1px solid rgba(0, 0, 0, 0.1)',
+									}}>
+									<input
+										type="search"
+										className="form-control"
+										placeholder="Search Role here..."
+										value={searchTerm}
+										onChange={handleSearch}
+										style={{
+											backgroundColor: 'transparent',
+											border: 'none',
+											paddingLeft: '10px',
+											color: '#333',
+										}}
+									/>
+									<span
+										className="ri-search-line search-icon text-muted"
+										style={{ marginRight: '10px', color: '#666' }}
+									/>
+								</div>
+							</form>
+						</div>
 						<select
 							className="form-select w-auto mt-3 mt-lg-0"
 							value={itemsPerPage}

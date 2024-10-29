@@ -420,13 +420,35 @@ const SubCategory = () => {
 						</div>
 					</div>
 					<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mt-3">
-						<Form.Control
-							type="text"
-							placeholder="Search Sub-Category by name"
-							value={searchTerm}
-							onChange={handleSearch}
-							className="me-2"
-						/>
+						<div className="app-search d-none d-lg-block">
+							<form>
+								<div
+									className="input-group"
+									style={{
+										backgroundColor: 'rgba(255, 255, 255, 0.8)',
+										borderRadius: '10px',
+										border: '1px solid rgba(0, 0, 0, 0.1)',
+									}}>
+									<input
+										type="search"
+										className="form-control"
+										placeholder="Search SubCategory..."
+										value={searchTerm}
+										onChange={handleSearch}
+										style={{
+											backgroundColor: 'transparent',
+											border: 'none',
+											paddingLeft: '10px',
+											color: '#333',
+										}}
+									/>
+									<span
+										className="ri-search-line search-icon text-muted"
+										style={{ marginRight: '10px', color: '#666' }}
+									/>
+								</div>
+							</form>
+						</div>
 						<Form.Select
 							value={itemsPerPage}
 							style={{ zIndex: 1 }}
@@ -452,13 +474,13 @@ const SubCategory = () => {
 									</th>
 
 									<th>Image</th>
+									<th>Parent Category</th>
 									<th>
 										<span onClick={handleSort} style={{ cursor: 'pointer' }}>
-											Name {sortedAsc ? '↑' : '↓'}
+											SubCategory {sortedAsc ? '↑' : '↓'}
 										</span>
 									</th>
 									<th>Description</th>
-									<th>Parent Category</th>
 									<th>Action</th>
 								</tr>
 							</thead>
@@ -487,9 +509,10 @@ const SubCategory = () => {
 														''
 													)}
 												</td>
+												<td>{record.parentCategory.name}</td>
 												<td>{record.name}</td>
 												<td>{record.description}</td>
-												<td>{record.parentCategory.name}</td>
+
 												<td>
 													<div className="d-flex">
 														<Button
@@ -566,18 +589,6 @@ const SubCategory = () => {
 						)}>
 						<Modal.Body>
 							<Form.Group className="mb-3">
-								<FormInput
-									label="Name"
-									type="text"
-									name="name"
-									containerClass="mb-3"
-									register={register}
-									placeholder="Enter Sub-Category Name here.."
-									errors={errors}
-									control={control}
-								/>
-							</Form.Group>
-							<Form.Group className="mb-3">
 								<Form.Label>Parent Category</Form.Label>
 								<Form.Select {...register('parentCategory')} defaultValue="">
 									<option value="" disabled>
@@ -596,7 +607,23 @@ const SubCategory = () => {
 							</Form.Group>
 							<Form.Group className="mb-3">
 								<FormInput
-									label="Description"
+									label="SubCategory Name"
+									type="text"
+									name="name"
+									containerClass="mb-3"
+									register={register}
+									placeholder="Enter Sub-Category Name here.."
+									errors={errors}
+									control={control}
+								/>
+							</Form.Group>
+
+							<Form.Group className="mb-2">
+								<Form.Label>Description</Form.Label>
+								<p style={{ fontSize: '0.8rem' }} className="mb-2">
+									You may write a description of up to 15 words.
+								</p>
+								<FormInput
 									type="textarea"
 									name="description"
 									containerClass="mb-3"
@@ -606,8 +633,27 @@ const SubCategory = () => {
 									control={control}
 								/>
 							</Form.Group>
-							<Form.Group className="mb-3">
+							<Form.Group className="mb-2">
 								<Form.Label>Image</Form.Label>
+								<div className="mb-2">
+									<p
+										style={{ fontSize: '0.8rem' }}
+										className="text-danger mb-0">
+										{'File Size: Upload images up to 5 MB.'}
+									</p>
+									<p
+										style={{ fontSize: '0.8rem' }}
+										className="text-danger mb-0">
+										{
+											'Supported Formats: JPEG (.jpg, .jpeg), PNG (.png), GIF(.gif), WebP (.webp), and SVG (.svg).'
+										}
+									</p>
+									<p
+										style={{ fontSize: '0.8rem' }}
+										className="text-danger mb-0">
+										{'Upload Limit: Only 1 image can be uploaded.'}
+									</p>
+								</div>
 								<SingleFileUploader
 									icon="ri-upload-cloud-2-line"
 									text="Drop file here or click to upload a product image."

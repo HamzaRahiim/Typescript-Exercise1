@@ -12,7 +12,7 @@ import {
 	Row,
 	Tab,
 } from 'react-bootstrap'
-import { useForm } from 'react-hook-form'
+import { set, useForm } from 'react-hook-form'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import 'react-quill/dist/quill.bubble.css'
@@ -26,6 +26,7 @@ import { SimpleLoader } from '../other/SimpleLoader'
 import { useAuthContext } from '@/common'
 import { MdDelete } from 'react-icons/md'
 import { TableRecord } from './Categories'
+import Swal from 'sweetalert2'
 
 const modules = {
 	toolbar: [
@@ -39,7 +40,6 @@ const modules = {
 		],
 	],
 }
-
 const CreateProduct = () => {
 	// *************************** states **************************************
 	const [description, setDescription] = useState('')
@@ -48,6 +48,7 @@ const CreateProduct = () => {
 	const [selectedImage, setSelectedImage] = useState<File | null>(null)
 	const [gallery, setGallery] = useState<File[]>([])
 	const [loading, setLoading] = useState(false)
+	const [apiLoading, setApiLoading] = useState(false)
 	const [variants, setVariants] = useState<ProductVariant[]>([])
 	const [selectedVariantId, setSelectedVariantId] = useState('')
 	const [variantValues, setVariantValues] = useState<string[]>([])
@@ -56,6 +57,13 @@ const CreateProduct = () => {
 	const [selectedCategory, setSelectedCategory] = useState('')
 	const [subCategories, setSubCategories] = useState<any[]>([])
 	const [selectedSubCategory, setSelectedSubCategory] = useState('')
+	const [filterSubCategory, setFilterSubCategory] = useState<any[]>([])
+	const [selectedSubCategoryValue, setSelectedSubCategoryValue] = useState('')
+	const [brands, setBrands] = useState<any[]>([])
+	const [selectedBrand, setSelectedBrand] = useState('')
+	const [productStatus, setProductStatus] = useState('active')
+
+	const [selectedVariantValue, setSelectedVariantValue] = useState('')
 	// *************************** hooks & basics **************************************
 	const BASE_API = import.meta.env.VITE_BASE_API
 	const { user } = useAuthContext()
@@ -78,11 +86,12 @@ const CreateProduct = () => {
 		const newState = !isBestSeller
 		setIsBestSeller(newState)
 	}
+	// Update handleVariantTypeChange to reset selected value when type changes
 	const handleVariantTypeChange = (e: any) => {
 		const selectedId = e.target.value
 		setSelectedVariantId(selectedId)
+		setSelectedVariantValue('') // Reset value when type changes
 
-		// Extract values linked to the selected variant
 		const values = variants
 			.filter((variant) => variant.variantName._id === selectedId)
 			.map((variant) => variant.value)
@@ -95,52 +104,142 @@ const CreateProduct = () => {
 				index === self.findIndex((v) => v._id === variant._id) // keep only unique _id
 		)
 
+	// Add handler for variant value selection
+	const handleVariantValueChange = (e: any) => {
+		setSelectedVariantValue(e.target.value)
+	}
+
+	// Update handleAddVariant to use selected value
 	const handleAddVariant = () => {
-		if (selectedVariantId && variantValues.length > 0) {
-			// Find the selected variant's name
+		if (selectedVariantId && selectedVariantValue) {
 			const selectedVariant = variants.find(
 				(variant) => variant.variantName._id === selectedVariantId
 			)
 
-			// Add the variant to the addedVariants array
+			const selectedValueObject = variants.find(
+				(variant) => variant.value === selectedVariantValue
+			)
+
 			setAddedVariants([
 				...addedVariants,
 				{
-					type: selectedVariant?.variantName.name, // e.g., Color, Size
-					value: variantValues[0], // Get the first value or adjust as needed
+					type: selectedVariant?.variantName.name,
+					value: selectedVariantValue, // Use selected value instead of first one
+					variantId: selectedValueObject?._id,
 				},
 			])
 		}
 	}
-
 	const handleDeleteVariant = (indexToRemove: any) => {
 		setAddedVariants(
 			addedVariants.filter((_, index) => index !== indexToRemove)
 		)
 	}
-
 	const handleCategoryChange = async (e: any) => {
-		setSelectedCategory(e.target.value) // Save selected category ID in state
+		const categoryId = e.target.value
+		setSelectedCategory(categoryId)
+		setSelectedSubCategoryValue('') // Reset subcategory when category changes
+
+		// Filter subcategories that match the selected category
+		const filteredSubCategories = subCategories.filter(
+			(subCategory: any) => subCategory.parentCategory._id === categoryId
+		)
+		setFilterSubCategory(filteredSubCategories)
 	}
 	const handleSubCategoryChange = (e: any) => {
-		setSelectedSubCategory(e.target.value) // Save selected category ID in state
+		setSelectedSubCategoryValue(e.target.value)
+		setSelectedSubCategory(e.target.value)
 	}
+	const handleBrandChange = (e: any) => {
+		setSelectedBrand(e.target.value)
+	}
+
 	// *************************** handle functions *****************************
 
-	const AddNewProduct = (data: ProductFormData) => {
-		data.description = description
-		const price = {
-			amount: data.price,
+	const AddNewProduct = async (data: ProductFormData) => {
+		const formData = new FormData()
+
+		// Required fields
+		formData.append('name', data.name)
+		formData.append('brandId', selectedBrand)
+		formData.append('category', selectedCategory)
+		formData.append('description', description)
+
+		// Price object needs to be stringified
+		const priceObject = {
+			amount: Number(data.price),
 			currency: currency,
 		}
-		data.price = price
-		data.isBestSeller = isBestSeller
-		data.image = selectedImage
-		data.gallery = gallery
-		data.variants = addedVariants
-		data.category = selectedCategory
+		formData.append('price', JSON.stringify(priceObject))
 
-		console.log('submitted data is ', data)
+		// Boolean needs to be explicitly converted to string
+		formData.append('IsBestSeller', String(isBestSeller))
+
+		// Optional fields
+		if (selectedSubCategory) formData.append('subcategory', selectedSubCategory)
+		if (data.videoLink) formData.append('videoLink', data.videoLink)
+		if (data.sku) formData.append('sku', data.sku)
+		if (productStatus) formData.append('lifecycleStage', productStatus)
+		if (data.releaseDate) formData.append('releaseDate', data.releaseDate)
+
+		// Files
+		if (selectedImage) formData.append('image', selectedImage)
+		if (gallery.length > 0) {
+			gallery.forEach((file, index) => {
+				formData.append(`gallery`, file)
+			})
+		}
+
+		// const variantIds = addedVariants.map((variant) => variant.variantId)
+		// formData.append('variants', JSON.stringify(variantIds))
+		// console.log('Form data prepared:', variantIds)
+
+		console.log('Form data prepared:', formData)
+		try {
+			setApiLoading(true)
+			const response = await fetch(`${BASE_API}/api/products`, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				body: formData,
+			})
+			if (!response.ok) {
+				const errorMessage = await response.json()
+				throw new Error(errorMessage.message)
+			}
+			const responseData = await response.json()
+			console.log('Product added successfully:', responseData)
+			if (responseData) {
+				Swal.fire({
+					title: 'Added!',
+					text: 'Product is Added Successfully.',
+					icon: 'success',
+					timer: 1500,
+				})
+				// reset() // Reset react-hook-form fields
+				// setDescription('') // Reset description
+				// setCurrency('PKR') // Reset currency
+				// setIsBestSeller(false) // Reset bestseller
+				// setSelectedImage(null) // Reset main image
+				// setGallery([]) // Reset gallery
+				// setAddedVariants([]) // Reset variants
+				// setSelectedCategory('') // Reset category
+				// setSelectedSubCategory('') // Reset subcategory
+				// setSelectedBrand('') // Reset brand
+				// setProductStatus('active') // Reset product status
+			}
+		} catch (error: any) {
+			console.error('Error adding product:')
+			Swal.fire({
+				title: 'Oops!',
+				text: error.message,
+				icon: 'error',
+				// timer: 1500,
+			})
+		} finally {
+			setApiLoading(false)
+		}
 	}
 	const handleDescriptionChange = (content: any) => {
 		const sanitizedDescription = DOMPurify.sanitize(content)
@@ -231,11 +330,38 @@ const CreateProduct = () => {
 			setLoading(false)
 		}
 	}
+	const getBrands = async () => {
+		try {
+			setLoading(true)
+			const response = await fetch(`${BASE_API}/api/brands`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+				},
+			})
+			if (!response.ok) {
+				const errorMessage = await response.json()
+				throw new Error(errorMessage.message || 'Failed to get subcategories')
+			}
+			const data: TableRecord[] = await response.json()
 
+			console.log('data from brands ', data)
+
+			if (data) {
+				setBrands(data)
+			}
+		} catch (error: any) {
+			console.error('Error getting brands data :', error)
+		} finally {
+			setLoading(false)
+		}
+	}
 	useEffect(() => {
 		getVariants()
 		getCategories()
 		getSubCategories()
+		getBrands()
 	}, [])
 	// **************************** render **************************************]
 	if (loading) {
@@ -306,10 +432,25 @@ const CreateProduct = () => {
 								<h4>Product Gallery</h4>
 							</Card.Header>
 							<Card.Body>
-								{/* Single Image Uploader (Product Main Image) */}
-								<div>
-									<h5>Product Image</h5>
-									<p>Add Product main Image</p>
+								<div className="mb-2">
+									<h5>Feature Product</h5>
+									<p
+										style={{ fontSize: '0.8rem' }}
+										className="text-danger mb-0">
+										{'File Size: Upload images up to 5 MB.'}
+									</p>
+									<p
+										style={{ fontSize: '0.8rem' }}
+										className="text-danger mb-0">
+										{
+											'Supported Formats: JPEG (.jpg, .jpeg), PNG (.png), GIF(.gif), WebP (.webp), and SVG (.svg).'
+										}
+									</p>
+									<p
+										style={{ fontSize: '0.8rem' }}
+										className="text-danger mb-0">
+										{'Upload Limit: Only 1 image can be uploaded.'}
+									</p>
 								</div>
 								<SingleFileUploader
 									icon="ri-upload-cloud-2-line"
@@ -320,9 +461,25 @@ const CreateProduct = () => {
 
 							<Card.Body>
 								{/* Multiple Image Uploader (Product Gallery) */}
-								<div>
+								<div className="mb-2">
 									<h5>Product Gallery</h5>
-									<p>Add Product Gallery Images</p>
+									<p
+										style={{ fontSize: '0.8rem' }}
+										className="text-danger mb-0">
+										{'File Size: Upload images up to 5 MB.'}
+									</p>
+									<p
+										style={{ fontSize: '0.8rem' }}
+										className="text-danger mb-0">
+										{
+											'Supported Formats: JPEG (.jpg, .jpeg), PNG (.png), GIF(.gif), WebP (.webp), and SVG (.svg).'
+										}
+									</p>
+									<p
+										style={{ fontSize: '0.8rem' }}
+										className="text-danger mb-0">
+										{'Upload Limit: Upto 5 images can be uploaded.'}
+									</p>
 								</div>
 								<FileUploader
 									icon="ri-upload-cloud-2-line"
@@ -344,17 +501,17 @@ const CreateProduct = () => {
 									<Nav variant="tabs" role="tablist" className="mb-3">
 										<Nav.Item as="li" role="presentation">
 											<Nav.Link as={Link} to="#" eventKey="general">
-												<span className="d-none d-md-block">General</span>
+												<span className="d-block">General</span>
 											</Nav.Link>
 										</Nav.Item>
 										<Nav.Item as="li" role="presentation">
 											<Nav.Link as={Link} to="#" eventKey="stock">
-												<span className="d-none d-md-block">SKU</span>
+												<span className="d-block">SKU</span>
 											</Nav.Link>
 										</Nav.Item>
 										<Nav.Item as="li" role="presentation">
 											<Nav.Link as={Link} to="#" eventKey="variants">
-												<span className="d-none d-md-block">Variants</span>
+												<span className="d-block">Variants</span>
 											</Nav.Link>
 										</Nav.Item>
 									</Nav>
@@ -364,7 +521,7 @@ const CreateProduct = () => {
 										{/* General Tab Content */}
 										<Tab.Pane eventKey="general">
 											<Row>
-												<Col>
+												<Col xs={12} lg={6} className="mb-3">
 													<Form.Group className="mb-3">
 														<Form.Label htmlFor="price">Price</Form.Label>
 														<InputGroup className="mb-3">
@@ -395,7 +552,7 @@ const CreateProduct = () => {
 														</InputGroup>
 													</Form.Group>
 												</Col>
-												<Col>
+												<Col xs={12} lg={6}>
 													<div
 														style={{ display: 'flex', alignItems: 'center' }}
 														className="mt-3">
@@ -453,21 +610,23 @@ const CreateProduct = () => {
 										<Tab.Pane eventKey="variants">
 											<h4>Select Variants Type</h4>
 											<Row className="mb-3">
-												<Col xs={6}>
+												<Col xs={12} md={6} className="mb-3 mb-md-0">
 													<Form.Select onChange={handleVariantTypeChange}>
 														<option value="" disabled selected>
 															Select Variant Type
 														</option>
 														{uniqueVariantTypes.map((variant, index) => (
 															<option key={index} value={variant._id}>
-																{variant.name} {/* e.g., Color or Size */}
+																{variant.name}
 															</option>
 														))}
 													</Form.Select>
 												</Col>
-												<Col xs={6}>
-													<Form.Select>
-														<option value="" disabled selected>
+												<Col xs={12} md={6}>
+													<Form.Select
+														value={selectedVariantValue}
+														onChange={handleVariantValueChange}>
+														<option value="" disabled>
 															{selectedVariantId
 																? 'Select Value'
 																: 'First Select Variant'}
@@ -542,34 +701,67 @@ const CreateProduct = () => {
 									<option defaultValue="">Select Category</option>
 									{categories.map((category) => (
 										<option key={category._id} value={category._id}>
-											{category.name} {/* Display category name */}
+											{category.name}
 										</option>
 									))}
 								</Form.Select>
 								<h5 className="mb-2 mt-3">Sub-Category</h5>
 								<Form.Select
 									onChange={handleSubCategoryChange}
-									value={selectedSubCategory}>
-									<option defaultValue="">Select Sub-Category</option>
-									{subCategories.map((category) => (
-										<option key={category._id} value={category._id}>
-											{category.name} {/* Display category name */}
+									value={selectedSubCategoryValue}>
+									<option value="" disabled>
+										{selectedCategory
+											? 'Select SubCategory'
+											: 'First Select Category'}
+									</option>
+									{filterSubCategory.map((subCategory) => (
+										<option key={subCategory._id} value={subCategory._id}>
+											{subCategory.name}
 										</option>
 									))}
 								</Form.Select>
 								<h5 className="mb-2 mt-3">Brands</h5>
-								<Form.Select>
-									<option defaultValue="selected">Brands</option>
-									<option value="Color">Chase Up</option>
-									<option value="Material">Imtiaz</option>
+								<Form.Select onChange={handleBrandChange} value={selectedBrand}>
+									<option defaultValue="">Select Category</option>
+									{brands.map((brand) => (
+										<option key={brand._id} value={brand._id}>
+											{brand.name}
+										</option>
+									))}
 								</Form.Select>
 							</Card.Body>
 						</Card>
-						<Card className="mt-3">Card 5 data displayed below card 4</Card>
+						<Card>
+							<Card.Header>Publish</Card.Header>
+							<Card.Body>
+								<h5 className="mb-2">Product Status</h5>
+								<Form.Select
+									value={productStatus} // Bind the selected value to state
+									onChange={(e) => setProductStatus(e.target.value)}>
+									<option value="active">Active</option>
+									<option value="upcoming">UpComing</option>
+									<option value="archived">Archived</option>
+									<option value="discontinued">Discontinued</option>
+								</Form.Select>
+								{/* Conditionally show this text if 'upcoming' is selected */}
+								{productStatus === 'upcoming' && (
+									<FormInput
+										label="Release Date"
+										type="date"
+										name="releaseDate"
+										containerClass="mb-3 mt-3"
+										register={register}
+										key="date"
+										errors={errors}
+										control={control}
+									/>
+								)}
+							</Card.Body>
+						</Card>
 					</Col>
 				</Row>
-				<Button variant="soft-success" type="submit">
-					Save Product
+				<Button variant="success" type="submit" disabled={apiLoading}>
+					{apiLoading ? 'Adding..' : 'Save Product'}
 				</Button>
 			</Form>
 		</>

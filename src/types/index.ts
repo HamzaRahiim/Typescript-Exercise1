@@ -5,11 +5,16 @@ export interface ProductFormData {
 	description?: string
 	sku?: string
 	price?: any
-	isBestSeller?: boolean
+	IsBestSeller?: boolean
 	image?: File | null
 	gallery?: File[] | null
 	variants: any[]
 	category?: string | null
+	brandId?: string | null
+	subcategory?: string | null
+	lifecycleStage?: string
+	videoLink?: string | null
+	releaseDate?: string | null
 }
 
 export interface ProductVariant {

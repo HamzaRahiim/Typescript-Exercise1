@@ -403,13 +403,35 @@ const ProductVarations = () => {
 						</div>
 					</div>
 					<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mt-3">
-						<Form.Control
-							type="text"
-							placeholder="Search variant by value"
-							value={searchTerm}
-							onChange={handleSearch}
-							className="me-2"
-						/>
+						<div className="app-search d-none d-lg-block">
+							<form>
+								<div
+									className="input-group"
+									style={{
+										backgroundColor: 'rgba(255, 255, 255, 0.8)',
+										borderRadius: '10px',
+										border: '1px solid rgba(0, 0, 0, 0.1)',
+									}}>
+									<input
+										type="search"
+										className="form-control"
+										placeholder="Search Variation here..."
+										value={searchTerm}
+										onChange={handleSearch}
+										style={{
+											backgroundColor: 'transparent',
+											border: 'none',
+											paddingLeft: '10px',
+											color: '#333',
+										}}
+									/>
+									<span
+										className="ri-search-line search-icon text-muted"
+										style={{ marginRight: '10px', color: '#666' }}
+									/>
+								</div>
+							</form>
+						</div>
 						<Form.Select
 							value={itemsPerPage}
 							style={{ zIndex: 1 }}
