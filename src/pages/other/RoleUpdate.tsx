@@ -18,10 +18,8 @@ const RoleUpdate = () => {
 	const [apiLoading, setApiLoading] = useState(false)
 	const canUpdate = isSuperUser || permissions.Users?.Update
 	const canView = isSuperUser || permissions.Users?.View
-
 	const defaultPermission: Permission = {
 		Products: { Create: false, View: false, Update: false, Delete: false },
-		Category: { Create: false, View: false, Update: false, Delete: false },
 		Orders: { Create: false, View: false, Update: false, Delete: false },
 		Shippings: { Create: false, View: false, Update: false, Delete: false },
 		Users: { Create: false, View: false, Update: false, Delete: false },
@@ -32,12 +30,6 @@ const RoleUpdate = () => {
 	}
 
 	const [permission, setPermission] = useState<Permission>(defaultPermission)
-
-	const resetForm = () => {
-		setPermission(defaultPermission) // Reset checkboxes to default
-		setRole('') // Reset the role field
-	}
-
 	const handlePermissionChange = (
 		page: keyof Permission,
 		permissionType: 'Create' | 'View' | 'Update' | 'Delete'

@@ -13,7 +13,6 @@ export interface MenuItemTypes {
 	children?: MenuItemTypes[]
 }
 import { MdProductionQuantityLimits } from 'react-icons/md'
-import { BiCategoryAlt } from 'react-icons/bi'
 import { MdLocalShipping } from 'react-icons/md'
 import { MdOutlineRequestQuote } from 'react-icons/md'
 import { FaUsers } from 'react-icons/fa6'
@@ -276,5 +275,5 @@ const MENU_ITEMS: MenuItemTypes[] = [
 	},
 ]
 
-const HORIZONTAL_MENU_ITEMS = []
+const HORIZONTAL_MENU_ITEMS: Array<any> = []
 export { MENU_ITEMS, HORIZONTAL_MENU_ITEMS }

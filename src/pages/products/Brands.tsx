@@ -312,10 +312,7 @@ const Brands = () => {
 
 			const data_res = await response.json()
 			if (data_res) {
-				// First close the modal
 				handleToggleModal()
-
-				// Then show success message and refresh data
 				await getAllBrands()
 				Swal.fire({
 					title: 'Updated!',
@@ -324,8 +321,6 @@ const Brands = () => {
 					confirmButtonText: 'OK',
 					timer: 1500,
 				})
-
-				// Reset form and editing state
 				reset()
 				setEditingBrand(null)
 			}

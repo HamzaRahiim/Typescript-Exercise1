@@ -12,7 +12,7 @@ import {
 	Row,
 	Tab,
 } from 'react-bootstrap'
-import { set, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import 'react-quill/dist/quill.bubble.css'
@@ -86,30 +86,29 @@ const CreateProduct = () => {
 		const newState = !isBestSeller
 		setIsBestSeller(newState)
 	}
-	// Update handleVariantTypeChange to reset selected value when type changes
+	// When user selects a variant type, it filters corresponding values
 	const handleVariantTypeChange = (e: any) => {
 		const selectedId = e.target.value
 		setSelectedVariantId(selectedId)
-		setSelectedVariantValue('') // Reset value when type changes
+		setSelectedVariantValue('')
 
 		const values = variants
 			.filter((variant) => variant.variantName._id === selectedId)
 			.map((variant) => variant.value)
 		setVariantValues(values)
 	}
+	// Creates unique list of variant types for first dropdown
 	const uniqueVariantTypes = variants
-		.map((variant) => variant.variantName) // extract the variantName object
+		.map((variant) => variant.variantName)
 		.filter(
 			(variant, index, self) =>
 				index === self.findIndex((v) => v._id === variant._id) // keep only unique _id
 		)
 
-	// Add handler for variant value selection
 	const handleVariantValueChange = (e: any) => {
 		setSelectedVariantValue(e.target.value)
 	}
 
-	// Update handleAddVariant to use selected value
 	const handleAddVariant = () => {
 		if (selectedVariantId && selectedVariantValue) {
 			const selectedVariant = variants.find(
@@ -190,9 +189,11 @@ const CreateProduct = () => {
 			})
 		}
 
-		// const variantIds = addedVariants.map((variant) => variant.variantId)
-		// formData.append('variants', JSON.stringify(variantIds))
-		// console.log('Form data prepared:', variantIds)
+		if (addedVariants.length > 0) {
+			addedVariants.forEach((variant) => {
+				formData.append('variants[]', variant.variantId)
+			})
+		}
 
 		console.log('Form data prepared:', formData)
 		try {
@@ -217,17 +218,16 @@ const CreateProduct = () => {
 					icon: 'success',
 					timer: 1500,
 				})
-				// reset() // Reset react-hook-form fields
-				// setDescription('') // Reset description
-				// setCurrency('PKR') // Reset currency
-				// setIsBestSeller(false) // Reset bestseller
-				// setSelectedImage(null) // Reset main image
-				// setGallery([]) // Reset gallery
-				// setAddedVariants([]) // Reset variants
-				// setSelectedCategory('') // Reset category
-				// setSelectedSubCategory('') // Reset subcategory
-				// setSelectedBrand('') // Reset brand
-				// setProductStatus('active') // Reset product status
+				reset() // Reset react-hook-form fields
+				setDescription('') // Reset description
+				setIsBestSeller(false) // Reset bestseller
+				setSelectedImage(null) // Reset main image
+				setGallery([]) // Reset gallery
+				setAddedVariants([]) // Reset variants
+				setSelectedCategory('') // Reset category
+				setSelectedSubCategory('') // Reset subcategory
+				setSelectedBrand('') // Reset brand
+				setProductStatus('active') // Reset product status
 			}
 		} catch (error: any) {
 			console.error('Error adding product:')
@@ -296,7 +296,7 @@ const CreateProduct = () => {
 			if (data_res) {
 				setCategories(data_res)
 			}
-			console.log(' I am categories api data  ', data_res)
+			// console.log(' I am categories api data  ', data_res)
 		} catch (error: any) {
 			console.error('Error getting categories api data : ', error)
 		} finally {
@@ -319,7 +319,7 @@ const CreateProduct = () => {
 			}
 			const data: TableRecord[] = await response.json()
 
-			console.log('data from sub-category ', data)
+			// console.log('data from sub-category ', data)
 
 			if (data) {
 				setSubCategories(data)
@@ -346,7 +346,7 @@ const CreateProduct = () => {
 			}
 			const data: TableRecord[] = await response.json()
 
-			console.log('data from brands ', data)
+			// console.log('data from brands ', data)
 
 			if (data) {
 				setBrands(data)
@@ -375,7 +375,16 @@ const CreateProduct = () => {
 					<Col xs={12} md={8}>
 						<Card>
 							<Card.Header>
-								<h4>Product Basic Information</h4>
+								<div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center">
+									<div>
+										<h4 className="header-title">Product Basic Information</h4>
+									</div>
+									<div className="mt-3 mt-lg-0">
+										<Link to="/products/all-product" className="btn btn-danger">
+											See All Products
+										</Link>
+									</div>
+								</div>
 							</Card.Header>
 							<Card.Body>
 								<Row>
@@ -641,7 +650,7 @@ const CreateProduct = () => {
 												</Col>
 											</Row>
 											<Button variant="success" onClick={handleAddVariant}>
-												Add New Variants
+												Save & Add New Variants
 											</Button>
 											{addedVariants.length > 0 && (
 												<ListGroup className="mt-3">

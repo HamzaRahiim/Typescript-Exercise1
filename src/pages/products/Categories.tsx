@@ -15,7 +15,6 @@ import { useToggle } from '@/hooks'
 import { SingleFileUploader } from '@/components/FileUploader/SingleFileUploader'
 import { useForm } from 'react-hook-form'
 import { SimpleLoader } from '../other/SimpleLoader'
-
 // basic tables
 export interface TableRecord {
 	_id: number
@@ -213,7 +212,6 @@ const Categories = () => {
 	}
 	const handleAddCategory = async (categoryData: any) => {
 		// You can further handle this data and send it to an API endpoint here
-		console.log('Category Data:', categoryData)
 
 		const formData = new FormData()
 		formData.append('name', categoryData.name)
@@ -222,7 +220,13 @@ const Categories = () => {
 			formData.append('image', selectedImage)
 		}
 
+		console.log('Category Data:', ...formData)
+
 		setApiLoading(true)
+
+		formData.forEach((value, key) => {
+			console.log(key, value)
+		})
 
 		try {
 			const response = await fetch(`${BASE_API}/api/categories/category`, {
@@ -303,12 +307,17 @@ const Categories = () => {
 		setApiLoading(true)
 
 		try {
+			console.log(
+				'before sending the request see my the id ',
+				editingCategory?._id
+			)
+
 			const response = await fetch(
 				`${BASE_API}/api/categories/category/${editingCategory?._id}`,
 				{
 					method: 'PUT',
 					headers: {
-						Authorization: `Bearer ${token}`,
+						Authorization: `${token}`,
 					},
 					body: formData,
 				}
@@ -321,6 +330,8 @@ const Categories = () => {
 
 			const data_res = await response.json()
 			if (data_res) {
+				getCategories()
+				handletoggleModal()
 				Swal.fire({
 					title: 'Updated!',
 					text: 'Category updated successfully!',
@@ -328,9 +339,8 @@ const Categories = () => {
 					confirmButtonText: 'OK',
 					timer: 1500,
 				})
-				getCategories()
 				reset()
-				setEditingCategory(null) // Reset after successful update
+				setEditingCategory(null)
 			}
 		} catch (error: any) {
 			console.error('Error Updating Category', error)

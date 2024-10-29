@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Card } from 'react-bootstrap'
+// Remove or comment out
+// import { Card } from 'react-bootstrap'
 import Dropzone from 'react-dropzone'
 
 interface FileType extends File {

@@ -1,4 +1,4 @@
-import { Card, Col, Row, Button, Table, Form, Spinner } from 'react-bootstrap'
+import { Card, Col, Row, Button, Table, Form } from 'react-bootstrap'
 import { Permission } from '@/types'
 import { useState } from 'react'
 import { FormInput, PageBreadcrumb } from '@/components'
@@ -25,7 +25,7 @@ const Roles = () => {
 	const { user, isSuperUser, permissions } = useAuthContext()
 	const [error, setError] = useState('') // Track validation error
 	const [role, setRole] = useState('') // Track the role input
-	const [loading, setLoading] = useState(false)
+	// const [loading, setLoading] = useState(false)
 	const [apiLoading, setApiLoading] = useState(false)
 	// Function to reset form after successful submission
 	const resetForm = () => {
@@ -100,17 +100,17 @@ const Roles = () => {
 			setApiLoading(false)
 		}
 
-		if (loading) {
-			return (
-				<div
-					className="d-flex justify-content-center align-items-center"
-					style={{ height: '100vh' }}>
-					<Spinner animation="grow" style={{ margin: '0 5px' }} />
-					<Spinner animation="grow" style={{ margin: '0 5px' }} />
-					<Spinner animation="grow" style={{ margin: '0 5px' }} />
-				</div>
-			)
-		}
+		// if (loading) {
+		// 	return (
+		// 		<div
+		// 			className="d-flex justify-content-center align-items-center"
+		// 			style={{ height: '100vh' }}>
+		// 			<Spinner animation="grow" style={{ margin: '0 5px' }} />
+		// 			<Spinner animation="grow" style={{ margin: '0 5px' }} />
+		// 			<Spinner animation="grow" style={{ margin: '0 5px' }} />
+		// 		</div>
+		// 	)
+		// }
 	}
 
 	return (

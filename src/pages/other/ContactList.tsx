@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { PageBreadcrumb, FormInput } from '@/components'
+import { PageBreadcrumb } from '@/components'
 import {
 	Card,
 	Col,
@@ -41,7 +41,7 @@ const ContactList = () => {
 	const [selectAll, setSelectAll] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const [userData, setUserData] = useState<UserRecord[]>([])
-	const [apiLoading, setApiLoading] = useState(false)
+	// const [apiLoading, setApiLoading] = useState(false)
 
 	const BASE_API = import.meta.env.VITE_BASE_API
 
@@ -175,7 +175,7 @@ const ContactList = () => {
 
 	const handleMultipeDeleteUser = async () => {
 		try {
-			setApiLoading(true)
+			// setApiLoading(true)
 			const response = await fetch(`${BASE_API}/api/users/bulk-delete`, {
 				method: 'DELETE',
 				headers: {
@@ -201,7 +201,7 @@ const ContactList = () => {
 		} catch (error: any) {
 			Swal.fire('Error!', 'User deletion failed.', 'error')
 		} finally {
-			setApiLoading(false)
+			// setApiLoading(false)
 		}
 	}
 

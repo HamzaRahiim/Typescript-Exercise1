@@ -1,10 +1,5 @@
 import { Image } from 'react-bootstrap'
-import {
-	AuthProvider,
-	ThemeSettings,
-	useAuthContext,
-	useThemeContext,
-} from '@/common'
+import { ThemeSettings, useAuthContext, useThemeContext } from '@/common'
 import { Link } from 'react-router-dom'
 
 // assets
@@ -20,7 +15,6 @@ import avatar5 from '@/assets/images/users/avatar-5.jpg'
 
 // components
 import {
-	LanguageDropdown,
 	MessageDropdown,
 	NotificationDropdown,
 	ProfileDropdown,
@@ -28,7 +22,6 @@ import {
 } from '@/components'
 import { useThemeCustomizer } from '@/components'
 import { useViewport } from '@/hooks'
-import { useEffect } from 'react'
 /**
  * for subtraction minutes
  */

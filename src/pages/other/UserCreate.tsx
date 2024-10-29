@@ -1,4 +1,4 @@
-import { Card, Col, Form, Row, Button, Spinner } from 'react-bootstrap'
+import { Card, Col, Form, Row, Button } from 'react-bootstrap'
 import { PageBreadcrumb, FormInput } from '@/components'
 import { useForm } from 'react-hook-form'
 import { useEffect, useState } from 'react'
@@ -46,14 +46,14 @@ const UserCreate = () => {
 		formState: { errors },
 	} = methods
 
-	const [loading, setLoading] = useState(false)
+	// const [loading, setLoading] = useState(false)
 	const [apiloading, setApiLoading] = useState(false)
 	const [roles, setRoles] = useState<{ _id: string; role_name: string }[]>([]) // Store
 	const { user } = useAuthContext()
 
 	const getRoles = async () => {
 		try {
-			setLoading(true)
+			// setLoading(true)
 			const BASE_API = import.meta.env.VITE_BASE_API
 			const yourAuthToken = user.token
 			const response = await fetch(`${BASE_API}/api/users/role/`, {
@@ -86,7 +86,7 @@ const UserCreate = () => {
 				timer: 1500,
 			})
 		} finally {
-			setLoading(false)
+			// setLoading(false)
 		}
 	}
 	useEffect(() => {

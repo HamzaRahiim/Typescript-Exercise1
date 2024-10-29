@@ -1,5 +1,5 @@
-import { Toast, Button } from 'react-bootstrap'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Button } from 'react-bootstrap'
+import { Link, Navigate } from 'react-router-dom'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import AuthLayout from '../AuthLayout'
@@ -8,7 +8,7 @@ import Swal from 'sweetalert2'
 
 // components
 import { VerticalForm, FormInput, PageBreadcrumb } from '@/components'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { UserData } from '@/types'
 
 const schemaResolver = yupResolver(
@@ -22,7 +22,7 @@ const Login = () => {
 	const { loading, login, redirectUrl, isAuthenticated, error } = useLogin()
 
 	const handleSubmit = async (data: UserData) => {
-		const result = await login(data)
+		await login(data)
 	}
 
 	useEffect(() => {

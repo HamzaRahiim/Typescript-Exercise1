@@ -18,14 +18,14 @@ const Dashboard = React.lazy(() => import('../pages/Dashboard'))
 
 // // pages
 const ProfilePages = React.lazy(() => import('../pages/other/Profile/'))
-const InvoicePages = React.lazy(() => import('../pages/other/Invoice'))
-const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
-const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
+// const InvoicePages = React.lazy(() => import('../pages/other/Invoice'))
+// const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
+// const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
 const MaintenancePages = React.lazy(() => import('../pages/other/Maintenance'))
-const StarterPages = React.lazy(() => import('../pages/other/Starter'))
+// const StarterPages = React.lazy(() => import('../pages/other/Starter'))
 const ContactListPages = React.lazy(() => import('../pages/other/ContactList'))
 const Role = React.lazy(() => import('../pages/other/Roles'))
-const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
+// const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
 const UsersPages = React.lazy(() => import('../pages/other/UserCreate'))
 const UserUpdates = React.lazy(() => import('../pages/other/UserUpdate'))
 const AllRolesUser = React.lazy(() => import('../pages/other/All_Roles'))
@@ -37,85 +37,85 @@ const Brands = React.lazy(() => import('../pages/products/Brands'))
 const CreateProduct = React.lazy(
 	() => import('../pages/products/CreateProduct')
 )
-const Variations = React.lazy(() => import('../pages/products/Variations'))
+// const Variations = React.lazy(() => import('../pages/products/Variations'))
 const ProductVariations = React.lazy(
 	() => import('../pages/products/ProductVariations')
 )
 
 // // base ui
-const Accordions = React.lazy(() => import('../pages/ui/Accordions'))
-const Alerts = React.lazy(() => import('../pages/ui/Alerts'))
-const Avatars = React.lazy(() => import('../pages/ui/Avatars'))
-const Badges = React.lazy(() => import('../pages/ui/Badges'))
-const Breadcrumb = React.lazy(() => import('../pages/ui/Breadcrumb'))
-const Buttons = React.lazy(() => import('../pages/ui/Buttons'))
-const Cards = React.lazy(() => import('../pages/ui/Cards'))
-const Carousel = React.lazy(() => import('../pages/ui/Carousel'))
-const Collapse = React.lazy(() => import('../pages/ui/Collapse'))
-const Dropdowns = React.lazy(() => import('../pages/ui/Dropdowns'))
-const EmbedVideo = React.lazy(() => import('../pages/ui/EmbedVideo'))
-const Grid = React.lazy(() => import('../pages/ui/Grid'))
-const Links = React.lazy(() => import('../pages/ui/Links'))
-const ListGroup = React.lazy(() => import('../pages/ui/ListGroup'))
-const Modals = React.lazy(() => import('../pages/ui/Modals'))
-const Notifications = React.lazy(() => import('../pages/ui/Notifications'))
-const Offcanvas = React.lazy(() => import('../pages/ui/Offcanvas'))
-const Placeholders = React.lazy(() => import('../pages/ui/Placeholders'))
-const Pagination = React.lazy(() => import('../pages/ui/Pagination'))
-const Popovers = React.lazy(() => import('../pages/ui/Popovers'))
-const Progress = React.lazy(() => import('../pages/ui/Progress'))
-const Spinners = React.lazy(() => import('../pages/ui/Spinners'))
-const Tabs = React.lazy(() => import('../pages/ui/Tabs'))
-const Tooltips = React.lazy(() => import('../pages/ui/Tooltips'))
-const Typography = React.lazy(() => import('../pages/ui/Typography'))
-const Utilities = React.lazy(() => import('../pages/ui/Utilities'))
+// const Accordions = React.lazy(() => import('../pages/ui/Accordions'))
+// const Alerts = React.lazy(() => import('../pages/ui/Alerts'))
+// const Avatars = React.lazy(() => import('../pages/ui/Avatars'))
+// const Badges = React.lazy(() => import('../pages/ui/Badges'))
+// const Breadcrumb = React.lazy(() => import('../pages/ui/Breadcrumb'))
+// const Buttons = React.lazy(() => import('../pages/ui/Buttons'))
+// const Cards = React.lazy(() => import('../pages/ui/Cards'))
+// const Carousel = React.lazy(() => import('../pages/ui/Carousel'))
+// const Collapse = React.lazy(() => import('../pages/ui/Collapse'))
+// const Dropdowns = React.lazy(() => import('../pages/ui/Dropdowns'))
+// const EmbedVideo = React.lazy(() => import('../pages/ui/EmbedVideo'))
+// const Grid = React.lazy(() => import('../pages/ui/Grid'))
+// const Links = React.lazy(() => import('../pages/ui/Links'))
+// const ListGroup = React.lazy(() => import('../pages/ui/ListGroup'))
+// const Modals = React.lazy(() => import('../pages/ui/Modals'))
+// const Notifications = React.lazy(() => import('../pages/ui/Notifications'))
+// const Offcanvas = React.lazy(() => import('../pages/ui/Offcanvas'))
+// const Placeholders = React.lazy(() => import('../pages/ui/Placeholders'))
+// const Pagination = React.lazy(() => import('../pages/ui/Pagination'))
+// const Popovers = React.lazy(() => import('../pages/ui/Popovers'))
+// const Progress = React.lazy(() => import('../pages/ui/Progress'))
+// const Spinners = React.lazy(() => import('../pages/ui/Spinners'))
+// const Tabs = React.lazy(() => import('../pages/ui/Tabs'))
+// const Tooltips = React.lazy(() => import('../pages/ui/Tooltips'))
+// const Typography = React.lazy(() => import('../pages/ui/Typography'))
+// const Utilities = React.lazy(() => import('../pages/ui/Utilities'))
 const BasicSettings = React.lazy(
 	() => import('@/pages/other/settings/BasicSetting')
 )
 // // extended ui
-const Portlets = React.lazy(() => import('../pages/extended/Portlets'))
-const RangeSlider = React.lazy(() => import('../pages/extended/RangeSlider'))
-const Scrollbar = React.lazy(() => import('../pages/extended/ScrollBar'))
+// const Portlets = React.lazy(() => import('../pages/extended/Portlets'))
+// const RangeSlider = React.lazy(() => import('../pages/extended/RangeSlider'))
+// const Scrollbar = React.lazy(() => import('../pages/extended/ScrollBar'))
 
-// // icons
-const RemixIcons = React.lazy(() => import('../pages/ui/icons/RemixIcons'))
-const BootstrapIcons = React.lazy(
-	() => import('../pages/ui/icons/BootstrapIcons')
-)
-const MaterialIcons = React.lazy(
-	() => import('../pages/ui/icons/MaterialIcons')
-)
+// // // icons
+// const RemixIcons = React.lazy(() => import('../pages/ui/icons/RemixIcons'))
+// const BootstrapIcons = React.lazy(
+// 	() => import('../pages/ui/icons/BootstrapIcons')
+// )
+// const MaterialIcons = React.lazy(
+// 	() => import('../pages/ui/icons/MaterialIcons')
+// )
 
-// charts
-const ApexCharts = React.lazy(() => import('../pages/charts/ApexCharts'))
-const SparklineCharts = React.lazy(
-	() => import('../pages/charts/SparklinesCharts')
-)
-const ChartJs = React.lazy(() => import('../pages/charts/ChartJsCharts'))
+// // charts
+// const ApexCharts = React.lazy(() => import('../pages/charts/ApexCharts'))
+// const SparklineCharts = React.lazy(
+// 	() => import('../pages/charts/SparklinesCharts')
+// )
+// const ChartJs = React.lazy(() => import('../pages/charts/ChartJsCharts'))
 
-// // forms
-const BasicElements = React.lazy(
-	() => import('../pages/ui/forms/BasicElements')
-)
-const FormAdvanced = React.lazy(() => import('../pages/ui/forms/FormAdvanced'))
-const Validation = React.lazy(() => import('../pages/ui/forms/Validation'))
-const Wizard = React.lazy(() => import('../pages/ui/forms/Wizard'))
-const FileUploads = React.lazy(() => import('../pages/ui/forms/FileUploads'))
-const Editors = React.lazy(() => import('../pages/ui/forms/Editors'))
-const ImageCrop = React.lazy(() => import('../pages/ui/forms/ImageCrop'))
-const Editable = React.lazy(() => import('../pages/ui/forms/Editable'))
+// // // forms
+// const BasicElements = React.lazy(
+// 	() => import('../pages/ui/forms/BasicElements')
+// )
+// const FormAdvanced = React.lazy(() => import('../pages/ui/forms/FormAdvanced'))
+// const Validation = React.lazy(() => import('../pages/ui/forms/Validation'))
+// const Wizard = React.lazy(() => import('../pages/ui/forms/Wizard'))
+// const FileUploads = React.lazy(() => import('../pages/ui/forms/FileUploads'))
+// const Editors = React.lazy(() => import('../pages/ui/forms/Editors'))
+// const ImageCrop = React.lazy(() => import('../pages/ui/forms/ImageCrop'))
+// const Editable = React.lazy(() => import('../pages/ui/forms/Editable'))
 
-// // tables
-const BasicTables = React.lazy(() => import('../pages/ui/tables/BasicTables'))
-const DataTables = React.lazy(() => import('../pages/ui/tables/DataTables'))
+// // // tables
+// const BasicTables = React.lazy(() => import('../pages/ui/tables/BasicTables'))
+// const DataTables = React.lazy(() => import('../pages/ui/tables/DataTables'))
 
-// // maps
-const GoogleMaps = React.lazy(() => import('../pages/ui/maps/GoogleMaps'))
-const VectorMaps = React.lazy(() => import('../pages/ui/maps/VectorMaps'))
+// // // maps
+// const GoogleMaps = React.lazy(() => import('../pages/ui/maps/GoogleMaps'))
+// const VectorMaps = React.lazy(() => import('../pages/ui/maps/VectorMaps'))
 
-// // error
+// // // error
 const Error404 = React.lazy(() => import('../pages/error/Error404'))
-const Error404Alt = React.lazy(() => import('../pages/error/Error404Alt'))
+// const Error404Alt = React.lazy(() => import('../pages/error/Error404Alt'))
 const Error500 = React.lazy(() => import('../pages/error/Error500'))
 
 export interface RoutesProps {

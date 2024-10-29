@@ -1,13 +1,4 @@
-import {
-	Button,
-	Card,
-	Col,
-	Form,
-	Nav,
-	Row,
-	Spinner,
-	Tab,
-} from 'react-bootstrap'
+import { Button, Card, Col, Form, Nav, Row, Tab } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import bgProfile from '@/assets/images/bg-profile.jpg'
@@ -24,7 +15,6 @@ interface UserInfo {
 	phone_number: string
 	role: string
 }
-
 interface FormData {
 	username: string
 	email: string
@@ -40,8 +30,6 @@ const ProfilePages = () => {
 	const {
 		handleSubmit,
 		register,
-		control,
-		reset,
 		watch,
 		formState: { errors },
 	} = methods

@@ -145,11 +145,9 @@ const records: TableRecord[] = [
 	},
 ]
 const SampleBasics = () => {
-	const { isSuperUser, permissions, user } = useAuthContext()
+	const { isSuperUser, permissions } = useAuthContext()
 	const canUpdate = isSuperUser || permissions.Users?.Update
 	const canDelete = isSuperUser || permissions.Users?.Delete
-	const canCreate = isSuperUser || permissions.Users?.Create
-
 	const [selectedRows, setSelectedRows] = useState<number[]>([])
 	const [searchTerm, setSearchTerm] = useState('')
 	const [currentPage, setCurrentPage] = useState(1)

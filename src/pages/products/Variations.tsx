@@ -1,4 +1,4 @@
-import { FormInput, PageBreadcrumb } from '@/components'
+import { FormInput } from '@/components'
 import {
 	Button,
 	Card,
@@ -20,12 +20,6 @@ interface VariantRecord {
 	name: string
 }
 
-interface ProductVariant {
-	_id: string
-	variantName: string
-	value: string
-}
-
 const Variations = () => {
 	const { isSuperUser, permissions, user } = useAuthContext()
 	const canUpdate = isSuperUser || permissions.Products?.Update
@@ -43,9 +37,9 @@ const Variations = () => {
 	const [selectAll, setSelectAll] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const [variantsData, setVariantsData] = useState<VariantRecord[]>([])
-	const [productVariantsData, setProductVariantsData] = useState<
-		ProductVariant[]
-	>([])
+	// const [productVariantsData, setProductVariantsData] = useState<
+	// 	ProductVariant[]
+	// >([])
 	const [editingVariant, setEditingVariant] = useState<VariantRecord | null>(
 		null
 	)

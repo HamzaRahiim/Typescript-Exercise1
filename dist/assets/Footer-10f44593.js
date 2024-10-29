@@ -1,0 +1,1 @@
+import{j as e,C as r}from"./index-3d8791b8.js";import{R as s}from"./Row-10d1c5f5.js";const a=()=>e.jsx("footer",{className:"footer",children:e.jsx(r,{fluid:!0,children:e.jsx(s,{className:"row",children:e.jsxs("div",{className:"col-12 text-center",children:[new Date().getFullYear()," © Velonic - Theme by ",e.jsx("b",{children:"Techzaa"})]})})})});export{a as default};

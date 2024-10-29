@@ -1,4 +1,4 @@
-import { Dropdown, Image } from 'react-bootstrap'
+import { Dropdown } from 'react-bootstrap'
 import { ProfileOption } from '@/Layouts/Topbar'
 import { Link } from 'react-router-dom'
 import { useToggle } from '@/hooks'

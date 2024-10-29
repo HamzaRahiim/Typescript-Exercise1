@@ -13,7 +13,7 @@ import { useAuthContext } from '@/common'
 import Swal from 'sweetalert2'
 import { useToggle } from '@/hooks'
 import { SingleFileUploader } from '@/components/FileUploader/SingleFileUploader'
-import { set, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { SimpleLoader } from '../other/SimpleLoader'
 import { TableRecord } from './Categories'
 
@@ -22,7 +22,7 @@ const SubCategory = () => {
 	const canUpdate = isSuperUser || permissions.Products?.Update
 	const canDelete = isSuperUser || permissions.Products?.Delete
 	const canCreate = isSuperUser || permissions.Products?.Create
-	const canView = isSuperUser || permissions.Products?.View
+	// const canView = isSuperUser || permissions.Products?.View
 
 	const [selectedRows, setSelectedRows] = useState<number[]>([])
 	const [searchTerm, setSearchTerm] = useState('')
@@ -194,14 +194,14 @@ const SubCategory = () => {
 	)
 	const [isOpen, toggleModal] = useToggle() // Using toggle for modal state
 
-	const handletoggleModal = () => {
-		if (isOpen) {
-			reset({ name: '', description: '', parentCategory: '' })
-			setSelectedImage(null)
-			setEditingSubCategory(null)
-		}
-		toggleModal()
-	}
+	// const handletoggleModal = () => {
+	// 	if (isOpen) {
+	// 		reset({ name: '', description: '', parentCategory: '' })
+	// 		setSelectedImage(null)
+	// 		setEditingSubCategory(null)
+	// 	}
+	// 	toggleModal()
+	// }
 	const toggleEditModal = (subCategory: TableRecord) => {
 		setEditingSubCategory(subCategory)
 		setValue('name', subCategory.name)

@@ -8,7 +8,7 @@ import Preloader from '@/components/Preloader'
 const Topbar = React.lazy(() => import('./Topbar'))
 const LeftSidebar = React.lazy(() => import('./LeftSidebar'))
 const RightSidebar = React.lazy(() => import('./RightSidebar'))
-const Footer = React.lazy(() => import('./Footer'))
+// const Footer = React.lazy(() => import('./Footer'))
 
 interface VerticalLayoutProps {
 	children?: any

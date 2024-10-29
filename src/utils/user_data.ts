@@ -1,4 +1,4 @@
-import { useAuthContext } from '@/common'
+// Remove unused import
 
 // export const UserData = async () => {
 // 	const { user } = useAuthContext()

@@ -7,10 +7,7 @@ import {
 	Pagination as BootstrapPagination,
 	Modal,
 } from 'react-bootstrap'
-import avatar2 from '@/assets/images/users/avatar-2.jpg'
-import avatar3 from '@/assets/images/users/avatar-3.jpg'
-import avatar4 from '@/assets/images/users/avatar-4.jpg'
-import avatar5 from '@/assets/images/users/avatar-5.jpg'
+
 import { useEffect, useState } from 'react'
 import { MdDelete, MdEdit } from 'react-icons/md'
 import { useAuthContext } from '@/common'
@@ -19,145 +16,48 @@ import { useToggle } from '@/hooks'
 import { SingleFileUploader } from '@/components/FileUploader/SingleFileUploader'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
+import { SimpleLoader } from '../other/SimpleLoader'
 
 // basic tables
 interface TableRecord {
-	id: number
+	_id: string
 	name: string
-	phoneNo: string
-	dob: string
-	country: string
-	accountNo: string
-	image: string
-	cell: string
-	activeClass?: string
+	brandId: string
+	description: string
+	isBestSeller: boolean
+	price: {
+		amount: number
+		currency: string
+	}
+	category: string
+	subcategory: string
+	videoLink?: string // Optional if not always provided
+	variants: Array<any> // Specify the type for the variants if known
+	lifecycleStage: 'active' | 'discontinued' | 'upcoming' | 'archived'
+	releaseDate: Date // Ensure the date is handled appropriately
+	sku: string
+	image: File // Ensure File type is correct based on how it's used
+	gallery: File[] // Array of File objects
 }
-const records: TableRecord[] = [
-	{
-		id: 1,
-		name: 'Risa D. Pearson',
-		phoneNo: '336-508-2157',
-		dob: 'July 24, 1950',
-		country: 'India',
-		accountNo: 'AC336 508 2157',
-		image: avatar2,
-		cell: 'Cell',
-		activeClass: 'table-active',
-	},
-	{
-		id: 2,
-		name: 'Ann C. Thompson',
-		phoneNo: '646-473-2057',
-		dob: 'January 25, 1959',
-		country: 'USA',
-		accountNo: 'SB646 473 2057',
-		image: avatar3,
-		cell: 'Cell',
-	},
-	{
-		id: 3,
-		name: 'Paul J. Friend',
-		phoneNo: '281-308-0793',
-		dob: 'September 1, 1939',
-		country: 'Canada',
-		accountNo: 'DL281 308 0793',
-		image: avatar4,
-		cell: 'Cell',
-	},
-	{
-		id: 4,
-		name: 'Linda G. Smith',
-		phoneNo: '606-253-1207',
-		dob: 'May 3, 1962',
-		country: 'Brazil',
-		accountNo: 'CA269 714 6825',
-		image: avatar5,
-		cell: 'Cell',
-	},
-	{
-		id: 5,
-		name: 'Linda G. Smith',
-		phoneNo: '606-253-1207',
-		dob: 'May 3, 1962',
-		country: 'Brazil',
-		accountNo: 'CA269 714 6825',
-		image: avatar5,
-		cell: 'Cell',
-	},
-	{
-		id: 6,
-		name: 'Linda G. Smith',
-		phoneNo: '606-253-1207',
-		dob: 'May 3, 1962',
-		country: 'Brazil',
-		accountNo: 'CA269 714 6825',
-		image: avatar5,
-		cell: 'Cell',
-	},
-	{
-		id: 7,
-		name: 'Linda G. Smith',
-		phoneNo: '606-253-1207',
-		dob: 'May 3, 1962',
-		country: 'Brazil',
-		accountNo: 'CA269 714 6825',
-		image: avatar5,
-		cell: 'Cell',
-	},
-	{
-		id: 8,
-		name: 'Linda G. Smith',
-		phoneNo: '606-253-1207',
-		dob: 'May 3, 1962',
-		country: 'Brazil',
-		accountNo: 'CA269 714 6825',
-		image: avatar5,
-		cell: 'Cell',
-	},
-	{
-		id: 9,
-		name: 'Linda G. Smith',
-		phoneNo: '606-253-1207',
-		dob: 'May 3, 1962',
-		country: 'Brazil',
-		accountNo: 'CA269 714 6825',
-		image: avatar5,
-		cell: 'Cell',
-	},
-	{
-		id: 10,
-		name: 'Linda G. Smith',
-		phoneNo: '606-253-1207',
-		dob: 'May 3, 1962',
-		country: 'Brazil',
-		accountNo: 'CA269 714 6825',
-		image: avatar5,
-		cell: 'Cell',
-	},
-	{
-		id: 11,
-		name: 'Linda G. Smith',
-		phoneNo: '606-253-1207',
-		dob: 'May 3, 1962',
-		country: 'Brazil',
-		accountNo: 'CA269 714 6825',
-		image: avatar5,
-		cell: 'Cell',
-	},
-]
+
 const Products = () => {
-	const { isSuperUser, permissions, user } = useAuthContext()
+	const { isSuperUser, permissions } = useAuthContext()
 	const canUpdate = isSuperUser || permissions.Users?.Update
 	const canDelete = isSuperUser || permissions.Users?.Delete
-	const canCreate = isSuperUser || permissions.Users?.Create
 
-	const [selectedRows, setSelectedRows] = useState<number[]>([])
+	const [selectedRows, setSelectedRows] = useState<any[]>([])
 	const [searchTerm, setSearchTerm] = useState('')
 	const [currentPage, setCurrentPage] = useState(1)
 	const [itemsPerPage, setItemsPerPage] = useState(15)
 	const [sortedAsc, setSortedAsc] = useState(true)
 	const [showDeleteButton, setShowDeleteButton] = useState(false)
 	const [selectedImage, setSelectedImage] = useState<File | null>(null)
+	const [productData, setProductData] = useState<TableRecord[]>([])
+	const [loading, setLoading] = useState(false)
+
+	const BASE_API = import.meta.env.VITE_BASE_API
+	const { user } = useAuthContext()
+	const { token } = user
 
 	const {
 		handleSubmit,
@@ -190,7 +90,7 @@ const Products = () => {
 	}
 	const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.checked) {
-			setSelectedRows(records.map((record) => record.id))
+			setSelectedRows(productData.map((product) => product._id))
 		} else {
 			setSelectedRows([])
 		}
@@ -225,7 +125,7 @@ const Products = () => {
 		setSortedAsc(!sortedAsc)
 	}
 
-	const filteredRecords = records
+	const filteredRecords = productData
 		.filter((record) =>
 			record.name.toLowerCase().includes(searchTerm.toLowerCase())
 		)
@@ -242,7 +142,7 @@ const Products = () => {
 		currentPage * itemsPerPage
 	)
 	const [isOpen, toggleModal] = useToggle() // Using toggle for modal state
-	const handleAddProduct = (ProductData: any) => {
+	const handleUpdateProduct = (ProductData: any) => {
 		// You can further handle this data and send it to an API endpoint here
 		console.log('Product Data:', ProductData)
 
@@ -253,6 +153,41 @@ const Products = () => {
 		if (selectedImage) {
 			formData.append('image', selectedImage)
 		}
+	}
+
+	const getAllProducts = async () => {
+		try {
+			setLoading(true)
+			const response = await fetch(`${BASE_API}/api/products`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			})
+
+			if (!response.ok) {
+				const errorMessage = await response.json()
+				throw new Error(errorMessage.message || 'Failed to get products')
+			}
+
+			const data_res = await response.json()
+			if (data_res) {
+				setProductData(data_res)
+			}
+			console.log(' date get from the api is ', data_res)
+		} catch (error: any) {
+			console.error('Error get data of product:', error)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	useEffect(() => {
+		getAllProducts()
+	}, [])
+
+	if (loading) {
+		return <SimpleLoader />
 	}
 	return (
 		<>
@@ -331,43 +266,51 @@ const Products = () => {
 										<input
 											type="checkbox"
 											onChange={handleSelectAll}
-											checked={selectedRows.length === records.length}
-										/>{' '}
+											checked={selectedRows.length === productData.length}
+										/>
 									</th>
-
 									<th>Image</th>
 									<th>
 										<span onClick={handleSort} style={{ cursor: 'pointer' }}>
-											Name {sortedAsc ? '↑' : '↓'}
+											Product Name {sortedAsc ? '↑' : '↓'}
 										</span>
 									</th>
-									<th>Description</th>
-									<th>Action</th>
+									<th>Price</th>
+									<th>SKU</th>
+									<th>Status</th>
+									<th>Best Seller</th>
+									<th>Actions</th>
 								</tr>
 							</thead>
 							<tbody>
 								{paginatedRecords.length > 0 ? (
-									(paginatedRecords || []).map((record, idx) => {
-										const isSelected = selectedRows.includes(record.id)
+									(productData || []).map((record: any, idx) => {
+										const isSelected = selectedRows.includes(record._id)
 										return (
 											<tr key={idx}>
 												<td>
 													<input
 														type="checkbox"
 														checked={isSelected}
-														onChange={() => handleSelectRow(record.id)}
+														onChange={() => handleSelectRow(record._id)}
 													/>
 												</td>
-
 												<td className="table-user">
-													<img
-														src={record.image}
-														alt="table-user"
-														className="me-2 rounded-circle"
-													/>
+													{record.image ? (
+														<img
+															src={`${BASE_API}/uploads/images/${record.image}`}
+															alt="product"
+															className="me-2 rounded-circle"
+														/>
+													) : (
+														''
+													)}
 												</td>
 												<td>{record.name}</td>
-												<td>{record.dob}</td>
+												<td>{record.price?.amount}</td>
+												<td>{record.sku}</td>
+												<td>{record.lifecycleStage}</td>
+												<td>{record.isBestSeller ? 'Yes' : 'No'}</td>
 												<td>
 													<div className="d-flex">
 														<Button
@@ -380,7 +323,7 @@ const Products = () => {
 															variant="danger"
 															className="ms-2"
 															onClick={() =>
-																handleDeleteConfirmation(record.id.toString())
+																handleDeleteConfirmation(record._id.toString())
 															}
 															disabled={!canDelete}>
 															<MdDelete />
@@ -392,13 +335,14 @@ const Products = () => {
 									})
 								) : (
 									<tr>
-										<td colSpan={5} className="text-center">
+										<td colSpan={8} className="text-center">
 											No records found
 										</td>
 									</tr>
 								)}
 							</tbody>
 						</Table>
+
 						<nav className="d-flex justify-content-end mt-3">
 							<BootstrapPagination className="pagination-rounded mb-0">
 								<BootstrapPagination.Prev
@@ -432,7 +376,7 @@ const Products = () => {
 					<Modal.Header closeButton>
 						<h4 className="modal-title">Add New Product</h4>
 					</Modal.Header>
-					<Form onSubmit={handleSubmit(handleAddProduct)}>
+					<Form onSubmit={handleSubmit(handleUpdateProduct)}>
 						<Modal.Body>
 							<Form.Group className="mb-3">
 								<FormInput
